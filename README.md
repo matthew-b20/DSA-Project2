@@ -27,3 +27,11 @@ Binary Search Tree,
 AVL Tree,
 Binary and Linear Search,
 Selection, Bubble, and Insertion Sort.
+
+
+You cannot change the problem context after the proposal. However, if you
+find a different way to solve the problem like a better algorithm or extra
+data structure, you can always change the implementation or visual aesthetics
+after your proposal or in your final submission. The proposal's goal is to 
+make sure you have an idea of what you are trying to do and to get feedback 
+from the course staff.
