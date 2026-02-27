@@ -8,6 +8,7 @@ Your project should solve a well framed problem using any or
 a combination of programming languages
 
 There are two requirements for this project:
+
     -   You must implement at least two non-trivial comparable
         algorithms or data structures in your project to achieve
         the relevant task. Implement here means you need to 
