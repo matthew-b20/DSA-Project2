@@ -9,7 +9,7 @@ interface RequestButtonProps{
 
 //THIS BUTTON MAKES A REQUEST TO THE CROW SERVER BASED ON THE BASSED IN PROPS
 //THIS WILL NEED TO BE UPDATED LATER OFC
-export default function RequestButton({num, billing_period, method, variable}: RequestButtonProps) {
+export default function RequestButton({num, method}: RequestButtonProps) {
     const [return_message, setReturnMessage] = useState("Please make a request"); //extract stuff from the JSON
 
     const makeRequest = async () => {
@@ -28,8 +28,8 @@ export default function RequestButton({num, billing_period, method, variable}: R
 
     return (
         <>
-            <button className = "uk-btn uk-btn-default" onClick = {makeRequest}>Make Request</button>
-            <p>{return_message}</p>
+            <button className = "uk-btn uk-btn-default mb-4" onClick = {makeRequest}>Make Request</button>
+            <p className = "mb-4">{return_message}</p>
         </>
     )
 }

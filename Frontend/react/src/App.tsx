@@ -1,12 +1,7 @@
-import RequestButton from  './components/RequestButton.tsx'
+import Sidebar from  './components/Sidebar.tsx'
 
 export default function App() {
   return (
-    <RequestButton
-        num={10}
-        billing_period={1}
-        method="max"
-        variable="potable usage"
-    />
+        <Sidebar/>
   )
 }
