@@ -5,14 +5,14 @@ import RequestButton from  './RequestButton.tsx'
 export default function Sidebar() {
     return(
         <>
-            <button className = "uk-btn uk-btn-primary"
+            <button className = "absolute top-4 left-0 rounded-l-none uk-btn uk-btn-primary z-1"
                     type="button"
                     data-uk-toggle="target: #sidebar-container">
                 Filter
             </button>
+            <div id = "sidebar-container" className="uk-offcanvas !visible" data-uk-offcanvas="bg-close: false; mode: push">
 
-            <div id = "sidebar-container" className="uk-offcanvas" data-uk-offcanvas = "bg-close: false">
-                <div className = "uk-offcanvas-bar px-4 py-4">
+                <div className = "uk-offcanvas-bar !overflow-visible px-6 py-6 z-1">
                     <h1 className = "uk-h1 text-primary mb-4">The Oviedo Water Atlas</h1>
                     <RequestButton
                         num={10}
@@ -20,11 +20,6 @@ export default function Sidebar() {
                         method="max"
                         variable="potable usage"
                     />
-                    <button className = "uk-btn uk-btn-primary"
-                            type="button"
-                            data-uk-toggle="target: #sidebar-container">
-                        Close Filters
-                    </button>
                 </div>
             </div>
         </>
