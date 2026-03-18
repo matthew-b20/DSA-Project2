@@ -3,15 +3,15 @@ import UseAnimations from "react-useanimations";
 import loading from 'react-useanimations/lib/loading';
 
 interface RequestButtonProps{
-    num: number;
     billing_period: number;
-    method: string;
+    num: number;
     variable: string;
+    method: string;
 }
 
 //THIS BUTTON MAKES A REQUEST TO THE CROW SERVER BASED ON THE BASSED IN PROPS
 //THIS WILL NEED TO BE UPDATED LATER OFC
-export default function RequestButton({num, method}: RequestButtonProps) {
+export default function RequestButton({billing_period, num, variable, method}: RequestButtonProps) {
     const Animation = (UseAnimations as any).default || UseAnimations;
     const loadingAnimationData = (loading as any).default || loading;
 
@@ -19,7 +19,7 @@ export default function RequestButton({num, method}: RequestButtonProps) {
     const [isLoading, setLoading] = useState(false);
 
     const makeRequest = async () => {
-        const endpoint = `http://localhost:18080/${num}/${method}`; //Crow server url
+        const endpoint = `/api/minmax/${billing_period}/${num}/${variable}/${method}`; //Crow server url
 
         try{
             setLoading(true);

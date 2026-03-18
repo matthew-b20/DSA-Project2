@@ -30,10 +30,10 @@ export default function Sidebar() {
                 <div className = "uk-offcanvas-bar !overflow-visible px-6 py-6 z-1">
                     <h1 className = "uk-h1 text-primary mb-4">The Oviedo Water Atlas</h1>
                     <RequestButton
-                        num={10}
                         billing_period={1}
-                        method="max"
+                        num={10}
                         variable="potable usage"
+                        method="max"
                     />
                 </div>
             </div>

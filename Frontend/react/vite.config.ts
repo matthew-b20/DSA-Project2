@@ -10,5 +10,14 @@ export default defineConfig({
       react: path.resolve('./node_modules/react'),
       'react-dom': path.resolve('./node_modules/react-dom'),
     }
+  },
+  server: { //DO NOT REMOVE -- SERVER WILL BREAK B/C OF CORS IF YOU GET RID OF THIS
+    proxy: {
+      '/api': {
+        target: 'http://localhost:18080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   }
 })
