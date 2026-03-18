@@ -14,21 +14,17 @@ export default function Sidebar() {
     return(
         <>
             { /* the menu icon isn't animating -- IDK why */ }
-            <Animation animation={menuAnimationData}
-               onClick = {()=>{setIsOpen(!isOpen)}}
-               reverse={isOpen}
-               size={32}
-               speed={1.5}
-               render={(eventProps: any, animationProps: any) => (
-                   <button className = "absolute top-4 left-0 px-2 py-6 rounded-l-none uk-btn uk-btn-primary z-1"
-                           type="button"
-                           data-uk-toggle="target: #sidebar-container"
-                           {...eventProps}
-                   >
-                       <div {...animationProps}/>
-                   </button>
-               )}
-            />
+           <button className = "absolute top-4 left-0 px-2 py-6 rounded-l-none uk-btn uk-btn-primary z-1"
+                   type="button"
+                   data-uk-toggle="target: #sidebar-container"
+                   onClick = {()=>{setIsOpen(!isOpen)}}
+           >
+               <Animation animation={menuAnimationData}
+                          reverse={isOpen}
+                          size={32}
+                          speed={1.5}
+               />
+           </button>
             <div id = "sidebar-container" className="uk-offcanvas !visible" data-uk-offcanvas="bg-close: false; mode: push">
 
                 <div className = "uk-offcanvas-bar !overflow-visible px-6 py-6 z-1">
