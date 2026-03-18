@@ -25,7 +25,7 @@ export default function RequestButton({billing_period, num, variable, method}: R
             setLoading(true);
             const server_response = await fetch(endpoint);
             const response_JSON = await server_response.json();
-            const returned_string = response_JSON.placeholder;
+            const returned_string = response_JSON.Method; //placeholder for now
             setReturnMessage(returned_string);
         }
         catch(error){
@@ -43,7 +43,7 @@ export default function RequestButton({billing_period, num, variable, method}: R
     return (
         <>
             <button className = "uk-btn uk-btn-default mb-4" onClick = {makeRequest}>
-                {isLoading ? <Animation animation={loadingAnimationData} size={24}/> :
+                {isLoading ? <Animation animation={loadingAnimationData} size={20}/> :
                     <img src={'../assets/filter.svg'} alt="filter" width="20" height="20" />}
                 <p>Apply Filters</p>
             </button>

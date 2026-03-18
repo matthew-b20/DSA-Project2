@@ -1,6 +1,10 @@
 //This file will hold all the Sidebar components that filter & control the map, once those components are made
 import { useState } from 'react';
-import RequestButton from  './RequestButton.tsx'
+import RequestButton from  './RequestButton.tsx';
+import NumberChooser from  './NumberChooser.tsx';
+import WaterChooser from  './WaterChooser.tsx';
+import MinMaxChooser from  './MinMaxChooser.tsx';
+import Slider from './Slider.tsx';
 import UseAnimations from "react-useanimations";
 import menu2 from 'react-useanimations/lib/menu2';
 
@@ -27,8 +31,25 @@ export default function Sidebar() {
            </button>
             <div id = "sidebar-container" className="uk-offcanvas !visible" data-uk-offcanvas="bg-close: false; mode: push">
 
+
+
                 <div className = "uk-offcanvas-bar !overflow-visible px-6 py-6 z-1">
+                    {/*HEADER*/}
                     <h1 className = "uk-h1 text-primary mb-4">The Oviedo Water Atlas</h1>
+
+                    {/*INPUT COMPONENTS*/}
+                    <NumberChooser/>
+                    <br/>
+
+                    <Slider/>
+                    <br/>
+
+                    <WaterChooser/>
+                    <br/>
+
+                    <MinMaxChooser/>
+                    <br/>
+
                     <RequestButton
                         billing_period={1}
                         num={10}
