@@ -1,8 +1,11 @@
-import Map from 'react-map-gl/maplibre';
+import Map, {Source, Layer} from 'react-map-gl/maplibre';
+import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import UseAnimations from "react-useanimations";
 import toggle from 'react-useanimations/lib/toggle';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import * as pmtiles from 'pmtiles';
+
 export default function MapBackground() {
     const [ style, setStyle ] = useState(true);
 
@@ -30,6 +33,13 @@ export default function MapBackground() {
     const Animation = (UseAnimations as any).default || UseAnimations;
     const toggleAnimationData = (toggle as any).default || toggle;
 
+    useEffect(()=>{
+        const protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+        return () => {maplibregl.removeProtocol("pmtiles")} //optional (not really optional here) cleanup function so React doesn't get weird
+    }, []); //empty dependency array
+
+    const tiles_url = `TippecanoeParcelsTake3.pmtiles`;
 
     return(
         <>
@@ -49,7 +59,32 @@ export default function MapBackground() {
                 className="w-full h-full"
                 mapStyle={style ? satelliteStyle : basicStyle}
                 maxZoom={19} // do not make smaller -- will result in grey squares if map is zoomed beyond available resolution
-            />
+                >
+                    <Source
+                        id="parcel-source"
+                        type="vector"
+                        url={`pmtiles://${tiles_url}`}
+                    >
+                        <Layer
+                            id="parcel-fills"
+                            type="fill"
+                            source-layer="parcels" // This MUST match the --layer name from Tippecanoe
+                            paint={{
+                                'fill-color': 'blue',
+                                'fill-opacity': 1
+                            }}
+                        />
+                        <Layer
+                            id="parcel-outlines"
+                            type="line"
+                            source-layer="parcels"
+                            paint={{
+                                'line-color': '#000000',
+                                'line-width': 1
+                            }}
+                        />
+                    </Source>
+                </Map>
             </div>
         </>
     )
