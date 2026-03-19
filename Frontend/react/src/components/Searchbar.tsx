@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from 'react';
 import { useMap } from 'react-map-gl/maplibre';
 /* ^ useEffect will load the data in the background after the initial render
 so that the other stuff doesn't have to wait on it */
-
 export default function Searchbar(){
     const [query, setQuery] = useState("");
     const [selectedParcel, setSelectedParcel] = useState(null);
@@ -32,10 +31,7 @@ export default function Searchbar(){
     const handleSelection = (feature) => {
         setSelectedParcel(feature);
         setQuery(feature.properties.Address);
-        //log coordinates for now -- will use to zoom map later
-        console.log("Selected parcel geometry:", feature.geometry.coordinates);
-
-        map.flyTo({center: feature.geometry.coordinates, zoom: 14})
+        map.flyTo({center: feature.geometry.coordinates, zoom: 18})
     }
 
     const showList = suggestions.length > 0 && isFocused;
