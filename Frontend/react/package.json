@@ -12,8 +12,10 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "franken-ui": "^2.1.2",
+    "lottie-react": "^2.4.1",
     "lottie-web": "^5.13.0",
     "maplibre-gl": "^5.20.1",
+    "pmtiles": "^4.4.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-map-gl": "^8.1.0",

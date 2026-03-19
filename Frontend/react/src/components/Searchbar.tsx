@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useMap } from 'react-map-gl/maplibre';
 /* ^ useEffect will load the data in the background after the initial render
 so that the other stuff doesn't have to wait on it */
-
 export default function Searchbar(){
     const [query, setQuery] = useState("");
     const [selectedParcel, setSelectedParcel] = useState(null);
     const [geoJsonData, setGeoJsonData] = useState(null);
     const [isFocused, setIsFocused] = useState(false);
+    const { map } = useMap();
 
     //load data ONCE
     useEffect(()=> {
@@ -30,14 +31,13 @@ export default function Searchbar(){
     const handleSelection = (feature) => {
         setSelectedParcel(feature);
         setQuery(feature.properties.Address);
-        //log coordinates for now -- will use to zoom map later
-        console.log("Selected parcel geometry:", feature.geometry);
+        map.flyTo({center: feature.geometry.coordinates, zoom: 18})
     }
 
     const showList = suggestions.length > 0 && isFocused;
 
     return(
-        <div className = "absolute top-4 inset-x-0 mx-auto w-[50vw]">
+        <div className = "fixed top-4 right-4 w-[30vw] min-w-[250px]">
             <img className = "absolute top-3 left-2"
                  src={'../assets/search.svg'}
                  alt="search"
