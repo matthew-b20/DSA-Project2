@@ -10,7 +10,6 @@ export default function Slider() {
                 id="Billing period slider"
                 type="range"
                 className="uk-range"
-                label={true}
                 min="1"
                 max="10"
                 step="1"
