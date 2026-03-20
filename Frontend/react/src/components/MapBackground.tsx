@@ -70,7 +70,7 @@ export default function MapBackground() {
                             type="fill"
                             source-layer="parcels" // This MUST match the --layer name from Tippecanoe
                             paint={{
-                                'fill-color': 'blue',
+                                'fill-color': '#FFA500',
                                 'fill-opacity': 1
                             }}
                         />
