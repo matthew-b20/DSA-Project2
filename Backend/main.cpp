@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <chrono> // for timing of the methods
-#include "../Dependencies/Crow/include/crow.h"
+#include "./Crow/include/crow.h"
 using namespace std;
 using namespace chrono;
 
