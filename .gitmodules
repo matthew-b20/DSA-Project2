@@ -1,3 +1,3 @@
-[submodule "Dependencies/Crow"]
-	path = Dependencies/Crow
+[submodule "Backend/Crow"]
+	path = Backend/Crow
 	url = https://github.com/crowcpp/crow.git
