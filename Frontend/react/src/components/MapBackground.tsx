@@ -114,7 +114,7 @@ export default function MapBackground() {
                                     latitude={user.Coordinates[1]}
                                     onClick = {()=>{handleSelection(user.Coordinates)}}
                                 >
-                                    <MapMarker color="#30123b" rank={index+1}/>
+                                    <MapMarker color="low" rank={index+1} size={48}/>
                                 </Marker>
                             ))}
                         </>
@@ -130,7 +130,7 @@ export default function MapBackground() {
                                     latitude={user.Coordinates[1]}
                                     onClick = {()=>{handleSelection(user.Coordinates)}}
                                 >
-                                    <MapMarker color="#7a0403" rank={index+1}/>
+                                    <MapMarker color="high" rank={index+1} size={48}/>
                                 </Marker>
                             ))}
                         </>
