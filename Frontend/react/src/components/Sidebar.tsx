@@ -37,7 +37,7 @@ export default function Sidebar() {
 
 
 
-                <div className = "uk-offcanvas-bar px-6 py-6 z-1">
+                <div className = "uk-offcanvas-bar px-6 py-6 z-1 overscroll-none">
                     {/*HEADER*/}
                     <h1 className = "uk-h1 text-primary mb-4">The Oviedo Water Atlas</h1>
 
@@ -60,6 +60,9 @@ export default function Sidebar() {
                         variable={variable}
                         method={method}
                     />
+                    <br/>
+
+
                 </div>
             </div>
         </>

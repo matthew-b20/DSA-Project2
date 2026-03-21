@@ -22,8 +22,8 @@ export const MapContext = createContext<MapContextType | null>(null);
 export default function MapVariablesProvider({children} : {children: React.ReactNode }) {
     const [billingPeriod, setBillingPeriod] = useState(1);
     const [num, setNum] = useState(5);
-    const [variable, setVariable] = useState('potable usage');
-    const [method, setMethod] = useState('max');
+    const [variable, setVariable] = useState('Potable');
+    const [method, setMethod] = useState('Min');
     const [style, setStyle] = useState(true);
 
     return(
