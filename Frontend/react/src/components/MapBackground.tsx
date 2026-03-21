@@ -1,13 +1,15 @@
 import Map, {Source, Layer} from 'react-map-gl/maplibre';
+import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import UseAnimations from "react-useanimations";
 import toggle from 'react-useanimations/lib/toggle';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import * as pmtiles from 'pmtiles';
 
 export default function MapBackground() {
     const [ style, setStyle ] = useState(true);
+    const { billingPeriod } = useContext(MapContext) as MapContextType;
 
     const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
     const satelliteStyle = {
@@ -40,6 +42,7 @@ export default function MapBackground() {
     }, []); //empty dependency array
 
     const tiles_url = `TippecanoeParcelsTake3.pmtiles`;
+    const consump_period = "Consump" + billingPeriod;
 
     return(
         <>
@@ -70,8 +73,22 @@ export default function MapBackground() {
                             type="fill"
                             source-layer="parcels" // This MUST match the --layer name from Tippecanoe
                             paint={{
-                                'fill-color': '#FFA500',
-                                'fill-opacity': 1
+                                'fill-color': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['get', consump_period],
+                                    0,    '#30123b',
+                                    2,    '#4145ab',
+                                    5,    '#39a2fc',
+                                    10,   '#1bcfd4',
+                                    20,   '#24efa2',
+                                    35,   '#a2fc3c',
+                                    50,   '#e1dc27',
+                                    75,   '#f8910b',
+                                    100,  '#e22f05',
+                                    150,  '#7a0403',
+                                ],
+                                'fill-opacity': 0.2
                             }}
                         />
                         <Layer

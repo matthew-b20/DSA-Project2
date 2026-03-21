@@ -51,7 +51,7 @@ private:
 
     //HELPERS
     //Returns the index of the parent of a node at index i.
-    static int parent_index(int const i) {
+    static int get_parent_index(int const i) {
         return (i + 1) / 2 - 1;
     }
 
@@ -80,8 +80,8 @@ private:
         //jump TWO levels at a time (compare w/ grandparent) b/c of alternating min/max levels
         bool keep_sifting = true;
         while (keep_sifting) {
-            int parent_index = parent_index(i);
-            int grandparent_index = parent_index(parent_index);
+            int parent_index = get_parent_index(i);
+            int grandparent_index = get_parent_index(parent_index);
 
             if (grandparent_index < 0) {
                 keep_sifting = false;
@@ -101,8 +101,8 @@ private:
         //near-identical logic to sift_up_min():
         bool keep_sifting = true;
         while (keep_sifting) {
-            int parent_index = parent_index(i);
-            int grandparent_index = parent_index(parent_index);
+            int parent_index = get_parent_index(i);
+            int grandparent_index = get_parent_index(parent_index);
 
             if (grandparent_index < 0) {
                 keep_sifting = false;
@@ -120,7 +120,7 @@ private:
     //Universal sift-up interface: Checks what level i is on (if on a min or max level)
     //and determines if a parent swap is needed before sift_up_min() OR sift_up_max()
     void sift_up(int i) {
-        int parent_index = parent_index(i);
+        int parent_index = get_parent_index(i);
 
         if (level_of(i) % 2 == 0) { // if EVEN (on min level)
             //its parent is on a max level (must be more than everything below it)
@@ -151,7 +151,7 @@ private:
         int right_index = 2*1 + 2;
 
         //Compare direct children if no grandchildren
-        if (size() <= 2*left + 1) { //case if no grandchildren
+        if (size() <= 2*left_index + 1) { //case if no grandchildren
             int best = i;
             if ( left_index < size() && heap_array[left_index] < heap_array[best]) {
                 best = left_index;
@@ -190,7 +190,7 @@ private:
         int right_index = 2*1 + 2;
 
         //Compare direct children if no grandchildren
-        if (size() <= 2*left + 1) { //case if no grandchildren
+        if (size() <= 2*left_index + 1) { //case if no grandchildren
             int best = i;
             if ( left_index < size() && heap_array[left_index] > heap_array[best]) {
                 best = left_index;

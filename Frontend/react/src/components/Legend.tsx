@@ -23,7 +23,7 @@ export default function Legend(){
 
         <ColorbarReact
             map={map}
-            colormap="turbo"
+            colormap={["#30123b", "#4145ab", "#39a2fc", "#1bcfd4", "#24efa2", "#a2fc3c", "#e1dc27", "#f8910b", "#e22f05", "#7a0403"]}
             vmin={0}
             vmax={50000}
             label="Usage (KGal)"
