@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useContext } from 'react';
+import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 
 export default function MinMaxChooser(){
-    const [searchType, setSearchType] = useState("Min");
+    const { method: searchType, setMethod: setSearchType } = useContext(MapContext) as MapContextType;
 
     return(
         <label className="block" htmlFor="Search Chooser"><b>Search type:</b>

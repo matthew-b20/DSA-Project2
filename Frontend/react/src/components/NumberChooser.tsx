@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 
 export default function NumberChooser() {
-    const [numParcels, setNumParcels] = useState(1);
+    const { num : numParcels, setNum : setNumParcels } = useContext(MapContext) as MapContextType; //this line is unhappy without the "as MapContextType"
+    const [inputVal, setInputVal] = useState("5");
+
     const validateNumParcels = () => {
         let validatedValue = Math.max(1, Math.min(30, numParcels));
         setNumParcels(Number(validatedValue));
@@ -15,9 +18,13 @@ export default function NumberChooser() {
                    id="quantity"
                    min="1"
                    max="30"
-                   value={numParcels === 0 ? "" : numParcels} // prevent people from entering ugly leading 0's
+                   value={inputVal === "0" ? "" : inputVal} // prevent people from entering ugly leading 0's
                    step="1"
-                   onChange={(e)=>setNumParcels(Number(parseInt(e.target.value, 10)))}
+                   onChange={(e) => {
+                       setInputVal(e.target.value); //always update display
+                       const parsed = parseInt(e.target.value, 10);
+                       if (!isNaN(parsed)) setNumParcels(parsed); // only update context when valid
+                   }}
                    onBlur={validateNumParcels}
             />
         </label>

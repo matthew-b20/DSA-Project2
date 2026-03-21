@@ -1,5 +1,6 @@
 //This file will hold all the Sidebar components that filter & control the map, once those components are made
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import RequestButton from  './RequestButton.tsx';
 import NumberChooser from  './NumberChooser.tsx';
 import WaterChooser from  './WaterChooser.tsx';
@@ -9,6 +10,8 @@ import UseAnimations from "react-useanimations";
 import menu2 from 'react-useanimations/lib/menu2';
 
 export default function Sidebar() {
+    const { billingPeriod, num, variable, method } = useContext(MapContext) as MapContextType;
+
     //console.log() is showing that they're objects w/ a default property so it has to be extracted???
     const Animation = (UseAnimations as any).default || UseAnimations;
     const menuAnimationData = (menu2 as any).default || menu2;
@@ -18,7 +21,8 @@ export default function Sidebar() {
     return(
         <>
             { /* the menu icon isn't animating -- IDK why */ }
-           <button className = "absolute top-4 left-0 px-2 py-6 rounded-l-none uk-btn uk-btn-primary z-1"
+           <button className = "absolute uk-btn uk-btn-primary top-4 left-0 px-2 py-6 rounded-l-none z-1"
+                   style={{ '--uk-btn-primary-hover-bg': 'hsl(var(--primary))' } as React.CSSProperties} //stops button from turning translucent on hover
                    type="button"
                    data-uk-toggle="target: #sidebar-container"
                    onClick = {()=>{setIsOpen(!isOpen)}}
@@ -51,10 +55,10 @@ export default function Sidebar() {
                     <br/>
 
                     <RequestButton
-                        billing_period={1}
-                        num={10}
-                        variable="potable usage"
-                        method="max"
+                        billing_period={billingPeriod}
+                        num={num}
+                        variable={variable}
+                        method={method}
                     />
                 </div>
             </div>

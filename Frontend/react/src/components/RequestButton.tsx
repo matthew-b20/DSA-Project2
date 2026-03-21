@@ -1,6 +1,7 @@
-import {useState} from 'react'
+import { useState } from 'react';
 import UseAnimations from "react-useanimations";
 import loading from 'react-useanimations/lib/loading';
+
 
 interface RequestButtonProps{
     billing_period: number;
@@ -25,7 +26,8 @@ export default function RequestButton({billing_period, num, variable, method}: R
             setLoading(true);
             const server_response = await fetch(endpoint);
             const response_JSON = await server_response.json();
-            const returned_string = response_JSON.Method; //placeholder for now
+            const returned_string = JSON.stringify(response_JSON); //everything for now
+            console.log(returned_string);
             setReturnMessage(returned_string);
         }
         catch(error){

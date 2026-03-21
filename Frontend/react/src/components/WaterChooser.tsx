@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useContext } from 'react';
+import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 
 export default function WaterChooser(){
-    const [waterType, setWaterType] = useState("Potable");
+    const { variable: waterType, setVariable: setWaterType } = useContext(MapContext) as MapContextType;
 
     return(
         <label className="block" htmlFor="Water Chooser"><b>Water type:</b>
