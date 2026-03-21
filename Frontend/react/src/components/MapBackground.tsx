@@ -14,25 +14,6 @@ interface popupInfo {
 }
 
 const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
-const satelliteStyle = {
-    version: 8,
-    sources: {
-        esri: {
-            type: "raster",
-            tiles: [
-                "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            ],
-            tileSize: 256
-        }
-    },
-    layers: [
-        {
-            id: "esri-sat",
-            type: "raster",
-            source: "esri"
-        }
-    ]
-};
 
 const ParcelLayers = memo(({billingPeriod}:{billingPeriod: number}) =>{
     const tiles_url = `TippecanoeParcelsTake3.pmtiles`;
@@ -128,9 +109,16 @@ export default function MapBackground() {
                     zoom: 12,
                 }}
                 className="w-full h-full"
-                mapStyle={style ? satelliteStyle : basicStyle}
+                mapStyle={basicStyle}
                 maxZoom={19} // do not make smaller -- will result in grey squares if map is zoomed beyond available resolution
                 >
+                    {/* Conditionally render satellite imagery, giving appearance of changing basemap w/o rerendering whole map */}
+                    {style &&
+                        <Source id="esri-sat" type="raster" tiles={["https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]} tileSize={256}>
+                            <Layer id="esri-sat-layer" type="raster" beforeId="parcel-fills" />
+                        </Source>
+                    }
+
                     {popup && (
                         <Popup
                             className="[&_.maplibregl-popup-close-button]:px-1 [&_.maplibregl-popup-close-button]:hover:!bg-transparent [&_.maplibregl-popup-close-button]:text-base [&_.maplibregl-popup-close-button]:hover:!text-[hsl(var(--primary))]"
