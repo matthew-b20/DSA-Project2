@@ -96,12 +96,12 @@ export default function RequestButton({billing_period, num, variable, method}: R
                     <br/>
                     <h2><b>Lowest {num} Users</b></h2>
                     {returnJSON[0].MinUsers.map((user, index )=> (
-                        <ul key = {index}
-                            className = "uk-card uk-card-body my-2 mx-2 py-2 px-3"
+                        <div key = {index}
+                            className = "uk-card uk-card-body my-2 mx-2 py-2 px-3 hover:cursor-[url('/assets/marker-cursor.svg')_24_24,_auto]"
                             onClick = {()=>{handleSelection(user.Coordinates)}}
                         >
                             <b>{index+1}. {user.Address}</b> | {user.Consump} kGal
-                        </ul>
+                        </div>
                     ))}
                 </>
             }
@@ -112,12 +112,12 @@ export default function RequestButton({billing_period, num, variable, method}: R
                     <br/>
                     <h2><b>Highest {num} Users</b></h2>
                     {returnJSON[0].MaxUsers.map((user, index )=> (
-                        <ul key = {index}
-                            className = "uk-card uk-card-body my-2 mx-2 py-2 px-3"
+                        <div key = {index}
+                            className = "uk-card uk-card-body my-2 mx-2 py-2 px-3 hover:cursor-[url('/assets/marker-cursor.svg')_24_24,_auto]"
                             onClick = {()=>{handleSelection(user.Coordinates)}}
                         >
                             <b>{index+1}. {user.Address}</b> | {user.Consump} kGal
-                        </ul>
+                        </div>
                     ))}
                 </>
             }
