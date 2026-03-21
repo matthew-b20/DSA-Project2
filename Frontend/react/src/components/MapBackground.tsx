@@ -1,12 +1,20 @@
-import Map, {Source, Layer} from 'react-map-gl/maplibre';
+import Map, { Source, Layer, Popup } from 'react-map-gl/maplibre';
 import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useContext, useEffect, useState } from 'react';
 import * as pmtiles from 'pmtiles';
 
+interface popupInfo {
+    lngLat: maplibregl.LngLat;
+    Address: string
+    LocationCode: string
+    consump_period: string
+}
+
 export default function MapBackground() {
     const { style, billingPeriod } = useContext(MapContext) as MapContextType;
+    const [ popup, setPopup ] = useState<popupInfo | null>(null);
 
     const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
     const satelliteStyle = {
@@ -38,12 +46,30 @@ export default function MapBackground() {
     const tiles_url = `TippecanoeParcelsTake3.pmtiles`;
     const consump_period = "Consump" + billingPeriod;
 
+    const handleParcelClick = (e) => {
+        const parcel = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens
+        if(parcel){
+            //Set Popup state
+            setPopup({
+                lngLat: e.lngLat, //should update to center of property point later
+                Address: parcel.properties.Address,
+                LocationCode: parcel.properties.LocationCode,
+                consump_period: parcel.properties[consump_period]
+            });
+        } else {
+            // don't do anything
+            setPopup(null);
+        }
+    }
+
     return(
         <>
             <div className = "fixed top-0 left-0 w-screen h-screen fixed z-0">
                 <Map
                 id="map"
                 attributionControl={false}
+                interactiveLayerIds={['parcel-fills']}
+                onClick={handleParcelClick}
                 initialViewState={{
                     longitude: -81.2,
                     latitude: 28.67,
@@ -53,6 +79,20 @@ export default function MapBackground() {
                 mapStyle={style ? satelliteStyle : basicStyle}
                 maxZoom={19} // do not make smaller -- will result in grey squares if map is zoomed beyond available resolution
                 >
+                    {popup && (
+                        <Popup
+                            longitude={popup.lngLat.lng}
+                            latitude={popup.lngLat.lat}
+                            onClose={() => setPopup(null)}
+                            closeOnClick={false} // Prevents the popup from closing if you click within it
+                        >
+                            <div>
+                                <p><b>{popup.Address}</b></p>
+                                <p>Location Code: {popup.LocationCode}</p>
+                                <p>Usage: {popup.consump_period} KGal</p>
+                            </div>
+                        </Popup>
+                    )}
                     <Source
                         id="parcel-source"
                         type="vector"

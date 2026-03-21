@@ -83,8 +83,8 @@ export default function RequestButton({billing_period, num, variable, method}: R
             {/* TIME ELAPSED BADGES */}
             {returnJSON &&
                 <>
-                    <p><b>Min-Max Heap Time: </b><span className="uk-badge uk-badge-primary">{returnJSON[0].Time} ns</span></p>
-                    <p><b>Deap Time: </b><span className="uk-badge uk-badge-primary">{returnJSON[1].Time} ns</span></p>
+                    <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary">{returnJSON[0].Time} ns</span></p>
+                    <p><b>Deap: </b><span className="uk-badge uk-badge-primary">{returnJSON[1].Time} ns</span></p>
                 </>
             }
 
