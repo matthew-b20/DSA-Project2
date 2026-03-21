@@ -81,15 +81,20 @@ export default function MapBackground() {
                 >
                     {popup && (
                         <Popup
+                            className="[&_.maplibregl-popup-close-button]:px-1 [&_.maplibregl-popup-close-button]:hover:!bg-transparent [&_.maplibregl-popup-close-button]:text-base [&_.maplibregl-popup-close-button]:hover:!text-[hsl(var(--primary))]"
                             longitude={popup.lngLat.lng}
                             latitude={popup.lngLat.lat}
                             onClose={() => setPopup(null)}
                             closeOnClick={false} // Prevents the popup from closing if you click within it
                         >
                             <div>
+                                <div className="flex items-center gap-1 pr-2">
+                                    <img src={'../assets/water-icon.svg'} alt="water icon" width="16" height="16" />
+                                    <p className="uk-h4">{popup.consump_period} KGal</p>
+                                </div>
+                                <hr className="uk-hr my-1 border-t-2 border-primary" />
                                 <p><b>{popup.Address}</b></p>
-                                <p>Location Code: {popup.LocationCode}</p>
-                                <p>Usage: {popup.consump_period} KGal</p>
+                                <p className="uk-badge uk-badge-primary pointer-events-none text-xs">Location: {popup.LocationCode}</p>
                             </div>
                         </Popup>
                     )}
