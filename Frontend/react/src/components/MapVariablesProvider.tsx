@@ -1,6 +1,23 @@
 import { createContext, useState } from 'react';
 import maplibregl from "maplibre-gl";
 
+interface User {
+    Address: string;
+    LocationCode: string;
+    Consump: number;
+    Coordinates: number[];
+}
+interface ReturnJSON{
+    DataStructure: string;
+    BillingPeriod: number;
+    Number: number;
+    VariableOfInterest: string;
+    Method: string;
+    Time: number;
+    MinUsers?: User[];
+    MaxUsers?: User[];
+}
+
 interface popupInfo {
     lngLat: maplibregl.LngLat;
     Address: string
@@ -26,6 +43,9 @@ export interface MapContextType {
 
     popup: popupInfo;
     setPopup: (val: popupInfo) => void;
+
+    returnJSON: ReturnJSON[]
+    setReturnJSON: (val: ReturnJSON[]) => void;
 }
 
 export const MapContext = createContext<MapContextType | null>(null);
@@ -37,6 +57,7 @@ export default function MapVariablesProvider({children} : {children: React.React
     const [method, setMethod] = useState('Min');
     const [style, setStyle] = useState(true);
     const [popup, setPopup] = useState<popupInfo | null>(null);
+    const [returnJSON, setReturnJSON] = useState<ReturnJSON[] | null>(null);
 
     return(
         <MapContext.Provider value = {{
@@ -45,7 +66,8 @@ export default function MapVariablesProvider({children} : {children: React.React
             variable, setVariable,
             method, setMethod,
             style, setStyle,
-            popup, setPopup}}
+            popup, setPopup,
+            returnJSON, setReturnJSON}}
         >
             {children}
         </MapContext.Provider>

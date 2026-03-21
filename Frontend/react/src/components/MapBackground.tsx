@@ -1,4 +1,5 @@
-import Map, { Source, Layer, Popup } from 'react-map-gl/maplibre';
+import Map, { Source, Layer, Popup, Marker,useMap } from 'react-map-gl/maplibre';
+import MapMarker from './MapMarker.tsx';
 import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -13,7 +14,8 @@ interface popupInfo {
 }
 
 export default function MapBackground() {
-    const { style, billingPeriod, popup, setPopup } = useContext(MapContext) as MapContextType;
+    const { map } = useMap();
+    const { style, billingPeriod, popup, setPopup, returnJSON, method } = useContext(MapContext) as MapContextType;
 
     const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
     const satelliteStyle = {
@@ -61,6 +63,10 @@ export default function MapBackground() {
         }
     }
 
+    const handleSelection = (coordinates : number[]) => {
+        map.flyTo({center: coordinates, zoom: 18});
+    }
+
     return(
         <>
             <div className = "fixed top-0 left-0 w-screen h-screen fixed z-0">
@@ -97,6 +103,38 @@ export default function MapBackground() {
                             </div>
                         </Popup>
                     )}
+
+                    {/* LOWEST USER MARKERS */}
+                    {returnJSON && returnJSON[0].MinUsers && (method === "Min" || method === "Both") &&
+                        <>
+                            {returnJSON[0].MinUsers.map((user, index )=> (
+                                <Marker
+                                    key={index}
+                                    longitude={user.Coordinates[0]}
+                                    latitude={user.Coordinates[1]}
+                                    onClick = {()=>{handleSelection(user.Coordinates)}}
+                                >
+                                    <MapMarker color="#30123b" rank={index+1}/>
+                                </Marker>
+                            ))}
+                        </>
+                    }
+
+                    {/* HIGHEST USER MARKERS */}
+                    {returnJSON && returnJSON[0].MaxUsers && (method === "Max" || method === "Both") &&
+                        <>
+                            {returnJSON[0].MaxUsers.map((user, index )=> (
+                                <Marker
+                                    key={index}
+                                    longitude={user.Coordinates[0]}
+                                    latitude={user.Coordinates[1]}
+                                    onClick = {()=>{handleSelection(user.Coordinates)}}
+                                >
+                                    <MapMarker color="#7a0403" rank={index+1}/>
+                                </Marker>
+                            ))}
+                        </>
+                    }
                     <Source
                         id="parcel-source"
                         type="vector"
