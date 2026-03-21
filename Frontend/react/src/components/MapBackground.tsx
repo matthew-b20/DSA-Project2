@@ -2,14 +2,11 @@ import Map, {Source, Layer} from 'react-map-gl/maplibre';
 import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import UseAnimations from "react-useanimations";
-import toggle from 'react-useanimations/lib/toggle';
 import { useContext, useEffect, useState } from 'react';
 import * as pmtiles from 'pmtiles';
 
 export default function MapBackground() {
-    const [ style, setStyle ] = useState(true);
-    const { billingPeriod } = useContext(MapContext) as MapContextType;
+    const { style, billingPeriod } = useContext(MapContext) as MapContextType;
 
     const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
     const satelliteStyle = {
@@ -32,9 +29,6 @@ export default function MapBackground() {
         ]
     };
 
-    const Animation = (UseAnimations as any).default || UseAnimations;
-    const toggleAnimationData = (toggle as any).default || toggle;
-
     useEffect(()=>{
         const protocol = new pmtiles.Protocol();
         maplibregl.addProtocol("pmtiles", protocol.tile);
@@ -46,10 +40,6 @@ export default function MapBackground() {
 
     return(
         <>
-            <button className = "absolute px-1 py-2 top-20 left-1 uk-btn uk-btn-default rounded-full flex items-center justify-center z-1"
-                onClick={()=>{setStyle(!style)}}>
-                <Animation animation={toggleAnimationData} reverse={style} size={32}/>
-            </button>
             <div className = "fixed top-0 left-0 w-screen h-screen fixed z-0">
                 <Map
                 id="map"

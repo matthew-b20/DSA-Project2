@@ -1,8 +1,9 @@
+import BackgroundToggle from  './components/BackgroundToggle.tsx';
 import Sidebar from  './components/Sidebar.tsx';
 import Legend from './components/Legend.tsx';
 import Searchbar from './components/Searchbar.tsx';
 import MapBackground from './components/MapBackground.tsx';
-import { MapVariablesProvider } from './components/MapVariablesProvider.tsx'
+import MapVariablesProvider from './components/MapVariablesProvider.tsx'
 import { MapProvider } from 'react-map-gl/maplibre';
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
           <MapVariablesProvider>  {/*custom map provider for communication between sidebar, map, and backend*/}
               {/*sibling components should now be able to read the same state*/}
               <MapBackground/>
+              <BackgroundToggle/>
               <Sidebar/>
               <Legend/>
               <Searchbar/>
