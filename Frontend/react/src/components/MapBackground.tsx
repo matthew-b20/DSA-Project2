@@ -13,8 +13,7 @@ interface popupInfo {
 }
 
 export default function MapBackground() {
-    const { style, billingPeriod } = useContext(MapContext) as MapContextType;
-    const [ popup, setPopup ] = useState<popupInfo | null>(null);
+    const { style, billingPeriod, popup, setPopup } = useContext(MapContext) as MapContextType;
 
     const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
     const satelliteStyle = {
