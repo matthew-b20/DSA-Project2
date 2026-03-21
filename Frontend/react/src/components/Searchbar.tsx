@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useContext, useMemo, useEffect } from 'react';
+import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import { useMap } from 'react-map-gl/maplibre';
 /* ^ useEffect will load the data in the background after the initial render
 so that the other stuff doesn't have to wait on it */
@@ -7,6 +8,7 @@ export default function Searchbar(){
     const [selectedParcel, setSelectedParcel] = useState(null);
     const [geoJsonData, setGeoJsonData] = useState(null);
     const [isFocused, setIsFocused] = useState(false);
+    const { billingPeriod, setPopup } = useContext(MapContext) as MapContextType;
     const { map } = useMap();
 
     //load data ONCE
@@ -32,6 +34,25 @@ export default function Searchbar(){
         setSelectedParcel(feature);
         setQuery(feature.properties.Address);
         map.flyTo({center: feature.geometry.coordinates, zoom: 18})
+
+        map.once('moveend', () => {
+            //returns array of parcels that match LocationCode, which will be exactly one parcel
+            const parcel = map.querySourceFeatures('parcel-source',
+                {
+                    sourceLayer: 'parcels',
+                    filter: ['==', 'LocationCode', feature.properties.LocationCode]
+                })
+
+            const consump_period = "Consump" + billingPeriod;
+            const [lng, lat] = feature.geometry.coordinates
+
+            setPopup({
+                lngLat: {lng, lat}, //should update to center of property point later
+                Address: parcel[0].properties.Address,
+                LocationCode: parcel[0].properties.LocationCode,
+                consump_period: parcel[0].properties[consump_period]
+            });
+        })
     }
 
     const showList = suggestions.length > 0 && isFocused;

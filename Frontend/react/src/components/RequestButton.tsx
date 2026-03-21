@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import UseAnimations from "react-useanimations";
 import loading from 'react-useanimations/lib/loading';
 import { useMap } from 'react-map-gl/maplibre';
@@ -10,30 +11,13 @@ interface RequestButtonProps{
     method: string;
 }
 
-interface User {
-    Address: string;
-    LocationCode: string;
-    Consump: number;
-    Coordinates: number[];
-}
-interface ReturnJSON{
-    DataStructure: string;
-    BillingPeriod: number;
-    Number: number;
-    VariableOfInterest: string;
-    Method: string;
-    Time: number;
-    MinUsers?: User[];
-    MaxUsers?: User[];
-}
-
 //THIS BUTTON MAKES A REQUEST TO THE CROW SERVER BASED ON THE BASSED IN PROPS
 //THIS WILL NEED TO BE UPDATED LATER OFC
 export default function RequestButton({billing_period, num, variable, method}: RequestButtonProps) {
     const Animation = (UseAnimations as any).default || UseAnimations;
     const loadingAnimationData = (loading as any).default || loading;
 
-    const [returnJSON, setReturnJSON] = useState<ReturnJSON[] | null>(null);
+    const { returnJSON, setReturnJSON } = useContext(MapContext) as MapContextType;
     const [isLoading, setLoading] = useState(false);
 
     const { map } = useMap();
@@ -83,8 +67,8 @@ export default function RequestButton({billing_period, num, variable, method}: R
             {/* TIME ELAPSED BADGES */}
             {returnJSON &&
                 <>
-                    <p><b>Min-Max Heap Time: </b><span className="uk-badge uk-badge-primary">{returnJSON[0].Time} ns</span></p>
-                    <p><b>Deap Time: </b><span className="uk-badge uk-badge-primary">{returnJSON[1].Time} ns</span></p>
+                    <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[0].Time} ns</span></p>
+                    <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[1].Time} ns</span></p>
                 </>
             }
 
@@ -96,12 +80,12 @@ export default function RequestButton({billing_period, num, variable, method}: R
                     <br/>
                     <h2><b>Lowest {num} Users</b></h2>
                     {returnJSON[0].MinUsers.map((user, index )=> (
-                        <ul key = {index}
-                            className = "uk-card uk-card-body my-2 mx-2 py-2 px-3"
+                        <div key = {index}
+                            className = "uk-card uk-card-body my-2 mx-2 py-2 px-3 hover:cursor-[url('/assets/marker-cursor.svg')_16_16,_auto]"
                             onClick = {()=>{handleSelection(user.Coordinates)}}
                         >
                             <b>{index+1}. {user.Address}</b> | {user.Consump} kGal
-                        </ul>
+                        </div>
                     ))}
                 </>
             }
@@ -112,12 +96,12 @@ export default function RequestButton({billing_period, num, variable, method}: R
                     <br/>
                     <h2><b>Highest {num} Users</b></h2>
                     {returnJSON[0].MaxUsers.map((user, index )=> (
-                        <ul key = {index}
-                            className = "uk-card uk-card-body my-2 mx-2 py-2 px-3"
+                        <div key = {index}
+                            className = "uk-card uk-card-body my-2 mx-2 py-2 px-3 hover:cursor-[url('/assets/marker-cursor.svg')_16_16,_auto]"
                             onClick = {()=>{handleSelection(user.Coordinates)}}
                         >
                             <b>{index+1}. {user.Address}</b> | {user.Consump} kGal
-                        </ul>
+                        </div>
                     ))}
                 </>
             }
