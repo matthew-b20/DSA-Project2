@@ -1,9 +1,9 @@
-import Map, { Source, Layer, Popup, Marker,useMap } from 'react-map-gl/maplibre';
+import Map, { Source, Layer, Popup, Marker, useMap } from 'react-map-gl/maplibre';
 import MapMarker from './MapMarker.tsx';
 import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, memo } from 'react';
 import * as pmtiles from 'pmtiles';
 
 interface popupInfo {
@@ -13,30 +13,78 @@ interface popupInfo {
     consump_period: string
 }
 
+const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
+const satelliteStyle = {
+    version: 8,
+    sources: {
+        esri: {
+            type: "raster",
+            tiles: [
+                "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            ],
+            tileSize: 256
+        }
+    },
+    layers: [
+        {
+            id: "esri-sat",
+            type: "raster",
+            source: "esri"
+        }
+    ]
+};
+
+const ParcelLayers = memo(({billingPeriod}:{billingPeriod: number}) =>{
+    const tiles_url = `TippecanoeParcelsTake3.pmtiles`;
+    const consump_period = "Consump" + billingPeriod;
+
+    return(
+        <>
+            <Source
+                id="parcel-source"
+                type="vector"
+                url={`pmtiles://${tiles_url}`}
+            >
+                <Layer
+                    id="parcel-fills"
+                    type="fill"
+                    source-layer="parcels" // This MUST match the --layer name from Tippecanoe
+                    paint={{
+                        'fill-color': [
+                            'interpolate',
+                            ['linear'],
+                            ['get', consump_period],
+                            0,    '#30123b',
+                            2,    '#4145ab',
+                            5,    '#39a2fc',
+                            10,   '#1bcfd4',
+                            20,   '#24efa2',
+                            35,   '#a2fc3c',
+                            50,   '#e1dc27',
+                            75,   '#f8910b',
+                            100,  '#e22f05',
+                            150,  '#7a0403',
+                        ],
+                        'fill-opacity': 0.2
+                    }}
+                />
+                <Layer
+                    id="parcel-outlines"
+                    type="line"
+                    source-layer="parcels"
+                    paint={{
+                        'line-color': '#000000',
+                        'line-width': 1
+                    }}
+                />
+            </Source>
+        </>
+    );
+});
+
 export default function MapBackground() {
     const { map } = useMap();
     const { style, billingPeriod, popup, setPopup, returnJSON, method } = useContext(MapContext) as MapContextType;
-
-    const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
-    const satelliteStyle = {
-        version: 8,
-        sources: {
-            esri: {
-                type: "raster",
-                tiles: [
-                    "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                ],
-                tileSize: 256
-            }
-        },
-        layers: [
-            {
-                id: "esri-sat",
-                type: "raster",
-                source: "esri"
-            }
-        ]
-    };
 
     useEffect(()=>{
         const protocol = new pmtiles.Protocol();
@@ -44,7 +92,6 @@ export default function MapBackground() {
         return () => {maplibregl.removeProtocol("pmtiles")} //optional (not really optional here) cleanup function so React doesn't get weird
     }, []); //empty dependency array
 
-    const tiles_url = `TippecanoeParcelsTake3.pmtiles`;
     const consump_period = "Consump" + billingPeriod;
 
     const handleParcelClick = (e) => {
@@ -135,44 +182,9 @@ export default function MapBackground() {
                             ))}
                         </>
                     }
-                    <Source
-                        id="parcel-source"
-                        type="vector"
-                        url={`pmtiles://${tiles_url}`}
-                    >
-                        <Layer
-                            id="parcel-fills"
-                            type="fill"
-                            source-layer="parcels" // This MUST match the --layer name from Tippecanoe
-                            paint={{
-                                'fill-color': [
-                                    'interpolate',
-                                    ['linear'],
-                                    ['get', consump_period],
-                                    0,    '#30123b',
-                                    2,    '#4145ab',
-                                    5,    '#39a2fc',
-                                    10,   '#1bcfd4',
-                                    20,   '#24efa2',
-                                    35,   '#a2fc3c',
-                                    50,   '#e1dc27',
-                                    75,   '#f8910b',
-                                    100,  '#e22f05',
-                                    150,  '#7a0403',
-                                ],
-                                'fill-opacity': 0.2
-                            }}
-                        />
-                        <Layer
-                            id="parcel-outlines"
-                            type="line"
-                            source-layer="parcels"
-                            paint={{
-                                'line-color': '#000000',
-                                'line-width': 1
-                            }}
-                        />
-                    </Source>
+
+                    <ParcelLayers billingPeriod={billingPeriod} />
+
                 </Map>
             </div>
         </>
