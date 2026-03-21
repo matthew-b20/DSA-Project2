@@ -39,9 +39,10 @@ export default function Sidebar() {
 
                 <div className = "uk-offcanvas-bar px-6 py-6 z-1 overscroll-none">
                     {/*HEADER*/}
-                    <h1 className = "uk-h1 text-primary mb-4">The Oviedo Water Atlas</h1>
+                    <h1 className = "uk-h1 text-secondary mb-4"><b>The Oviedo Water Atlas</b></h1>
 
                     {/*INPUT COMPONENTS*/}
+                    <h4 className = "uk-h4 text-primary mb-4">Filters</h4>
                     <NumberChooser/>
                     <br/>
 
