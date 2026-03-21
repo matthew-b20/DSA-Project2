@@ -5,7 +5,7 @@ export default function MinMaxChooser(){
     const { method: searchType, setMethod: setSearchType } = useContext(MapContext) as MapContextType;
 
     return(
-        <label className="block" htmlFor="Search Chooser"><b>Search type:</b>
+        <label className="block" htmlFor="Search Chooser"><b>User type:</b>
 
             <label className="block">
                 <input className="uk-radio mr-2"
@@ -15,7 +15,7 @@ export default function MinMaxChooser(){
                        checked={searchType=="Min"}
                        onChange={(e) => setSearchType(e.target.value)}
                 />
-                Lowest users
+                Lowest
             </label>
 
             <label className="block">
@@ -26,7 +26,7 @@ export default function MinMaxChooser(){
                        checked={searchType=="Max"}
                        onChange={(e) => setSearchType(e.target.value)}
                 />
-                Highest users
+                Highest
             </label>
 
             <label className="block">

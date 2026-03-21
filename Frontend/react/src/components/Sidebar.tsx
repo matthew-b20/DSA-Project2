@@ -37,7 +37,7 @@ export default function Sidebar() {
 
 
 
-                <div className = "uk-offcanvas-bar !overflow-visible px-6 py-6 z-1">
+                <div className = "uk-offcanvas-bar px-6 py-6 z-1">
                     {/*HEADER*/}
                     <h1 className = "uk-h1 text-primary mb-4">The Oviedo Water Atlas</h1>
 
@@ -48,10 +48,10 @@ export default function Sidebar() {
                     <Slider/>
                     <br/>
 
-                    <WaterChooser/>
-                    <br/>
-
-                    <MinMaxChooser/>
+                    <div className="px-0 py-0 grid grid-cols-2 gap-4">
+                        <WaterChooser/>
+                        <MinMaxChooser/>
+                    </div>
                     <br/>
 
                     <RequestButton
