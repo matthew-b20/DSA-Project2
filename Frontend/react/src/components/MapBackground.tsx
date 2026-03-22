@@ -6,12 +6,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useContext, useEffect, memo } from 'react';
 import * as pmtiles from 'pmtiles';
 
-interface popupInfo {
-    lngLat: maplibregl.LngLat;
-    Address: string
-    LocationCode: string
-    consump_period: string
-}
 
 const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
 
@@ -83,7 +77,9 @@ export default function MapBackground() {
                 lngLat: e.lngLat, //should update to center of property point later
                 Address: parcel.properties.Address,
                 LocationCode: parcel.properties.LocationCode,
-                consump_period: parcel.properties[consump_period]
+                consump_period: parcel.properties[consump_period],
+                PropertyCat: parcel.properties.PropertyCat,
+                PropertyType: parcel.properties.PropertyType
             });
         } else {
             // don't do anything
@@ -134,6 +130,8 @@ export default function MapBackground() {
                                 </div>
                                 <hr className="uk-hr my-1 border-t-2 border-primary" />
                                 <p><b>{popup.Address}</b></p>
+                                <p><b>Use Code: </b>{popup.PropertyType}</p>
+                                <p><b>Category: </b>{popup.PropertyCat}</p>
                                 <p className="uk-badge uk-badge-primary pointer-events-none text-xs">Location: {popup.LocationCode}</p>
                             </div>
                         </Popup>

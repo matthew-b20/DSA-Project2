@@ -20,9 +20,11 @@ interface ReturnJSON{
 
 interface popupInfo {
     lngLat: maplibregl.LngLat;
-    Address: string
-    LocationCode: string
-    consump_period: string
+    Address: string;
+    LocationCode: string;
+    PropertyType: string;
+    PropertyCat: string;
+    consump_period: string;
 }
 
 export interface MapContextType {

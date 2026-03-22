@@ -62,18 +62,18 @@ export default function RequestButton({billing_period, num, variable, method}: R
                 <p>Apply Filters</p>
             </button>
 
-            <hr className="h-[3px] border-none" style={{ backgroundColor: "#00adb0" }}/>
-            <br/>
-
             {/* TIME ELAPSED BADGES */}
             {returnJSON &&
                 <>
+                    <hr className="h-[2px] border-none" style={{ backgroundColor: "#00adb0" }}/>
+                    <br/>
+
                     <h4 className = "uk-h4 text-primary mb-4">Performance</h4>
                     <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[0].Time} ns</span></p>
                     <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[1].Time} ns</span></p>
 
                     <br/>
-                    <hr className="h-[3px] border-none" style={{ backgroundColor: "#00adb0" }}/>
+                    <hr className="h-[2px] border-none" style={{ backgroundColor: "#00adb0" }}/>
                     <br/>
                 </>
             }

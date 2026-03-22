@@ -50,7 +50,9 @@ export default function Searchbar(){
                 lngLat: {lng, lat}, //should update to center of property point later
                 Address: parcel[0].properties.Address,
                 LocationCode: parcel[0].properties.LocationCode,
-                consump_period: parcel[0].properties[consump_period]
+                consump_period: parcel[0].properties[consump_period],
+                PropertyCat: parcel[0].properties.PropertyCat,
+                PropertyType: parcel[0].properties.PropertyType
             });
         })
     }
@@ -78,12 +80,12 @@ export default function Searchbar(){
             {/*Render the suggestions list*/}
             {showList &&
                 (
-                    <ul className = "uk-card uk-card-default absolute mt-2 w-full overflow-hidden rounded-md border bg-white">
+                    <ul className = "uk-card uk-card-default absolute mt-2 w-full overflow-hidden rounded-md border bg-white z-500">
                         {suggestions.map((feature, index)=> (
                             <div className = "my-2 mx-2">
                                 <li
                                     key = {index}
-                                    className="p-3 py-2 uk-list-item hover:bg-primary rounded-md cursor-pointer text-sm"
+                                    className="p-3 py-2 uk-list-item hover:bg-primary rounded-md cursor-pointer text-sm z-500"
                                     onMouseDown={()=>handleSelection(feature)}>
                                     <b>{feature.properties.Address}</b> | Location Code: {feature.properties.LocationCode}
                                 </li>

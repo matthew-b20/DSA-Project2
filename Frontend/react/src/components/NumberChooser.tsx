@@ -6,8 +6,10 @@ export default function NumberChooser() {
     const [inputVal, setInputVal] = useState("5");
 
     const validateNumParcels = () => {
-        let validatedValue = Math.max(1, Math.min(30, numParcels));
-        setNumParcels(Number(validatedValue));
+        const parsed = parseInt(inputVal, 10);
+        const validatedValue = isNaN(parsed) ? 1 : Math.max(1, Math.min(30, parsed));
+        setInputVal(String(validatedValue));
+        setNumParcels(validatedValue);
     }
 
     return(
@@ -20,11 +22,7 @@ export default function NumberChooser() {
                    max="30"
                    value={inputVal === "0" ? "" : inputVal} // prevent people from entering ugly leading 0's
                    step="1"
-                   onChange={(e) => {
-                       setInputVal(e.target.value); //always update display
-                       const parsed = parseInt(e.target.value, 10);
-                       if (!isNaN(parsed)) setNumParcels(parsed); // only update context when valid
-                   }}
+                   onChange={(e) => setInputVal(e.target.value)}
                    onBlur={validateNumParcels}
             />
         </label>
