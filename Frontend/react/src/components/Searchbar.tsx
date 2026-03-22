@@ -52,7 +52,8 @@ export default function Searchbar(){
                 LocationCode: parcel[0].properties.LocationCode,
                 consump_period: parcel[0].properties[consump_period],
                 PropertyCat: parcel[0].properties.PropertyCat,
-                PropertyType: parcel[0].properties.PropertyType
+                PropertyType: parcel[0].properties.PropertyType,
+                Bill: billingPeriod
             });
         })
     }

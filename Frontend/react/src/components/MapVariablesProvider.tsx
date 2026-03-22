@@ -25,6 +25,7 @@ interface popupInfo {
     PropertyType: string;
     PropertyCat: string;
     consump_period: string;
+    Bill: number;
 }
 
 export interface MapContextType {

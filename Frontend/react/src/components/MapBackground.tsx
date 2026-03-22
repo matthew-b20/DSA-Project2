@@ -79,7 +79,8 @@ export default function MapBackground() {
                 LocationCode: parcel.properties.LocationCode,
                 consump_period: parcel.properties[consump_period],
                 PropertyCat: parcel.properties.PropertyCat,
-                PropertyType: parcel.properties.PropertyType
+                PropertyType: parcel.properties.PropertyType,
+                Bill: billingPeriod
             });
         } else {
             // don't do anything
@@ -126,13 +127,13 @@ export default function MapBackground() {
                             <div>
                                 <div className="flex items-center gap-1 pr-2">
                                     <img src={'../assets/water-icon.svg'} alt="water icon" width="16" height="16" />
-                                    <p className="uk-h4">{popup.consump_period} KGal</p>
+                                    <p className="uk-h4 text-secondary">{popup.consump_period} KGal</p>
                                 </div>
-                                <hr className="uk-hr my-1 border-t-2 border-primary" />
-                                <p><b>{popup.Address}</b></p>
+                                <p className="text-primary mb-1"><b>{popup.Address}</b></p>
+                                <p><b>Bill: </b>{popup.Bill}</p>
                                 <p><b>Use Code: </b>{popup.PropertyType}</p>
                                 <p><b>Category: </b>{popup.PropertyCat}</p>
-                                <p className="uk-badge uk-badge-primary pointer-events-none text-xs">Location: {popup.LocationCode}</p>
+                                <p><b>Location Code: </b>{popup.LocationCode}</p>
                             </div>
                         </Popup>
                     )}
