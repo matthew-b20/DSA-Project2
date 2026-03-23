@@ -67,13 +67,13 @@ private:
 
 public:
     //Constructor
-    GeoJSONHeapWrapper(const string& filepath) {
-        load_file(filepath);
+    GeoJSONHeapWrapper(const string& filepath, const int& billing_period, const string& variable) {
+        load_file(filepath, billing_period, variable);
     }
 
     //Custom GeoJSON file loader
     //Reads a GeoJSON file and inserts all of its features into the heap
-    void load_file(const string& filepath) {
+    void load_file(const string& filepath, const int& billing_period, const string& variable) {
         ifstream file(filepath);
         if (!file.is_open()) {
             throw runtime_error("GeoJSONHeap: could not open file: " + filepath);
@@ -81,8 +81,12 @@ public:
 
         json geojson = nlohmann::json::parse(file);
 
+        //only query for the selected billing period and water type (Potable, Reclaimed, Both, etc.)
         for (const json& feature : geojson.at("features")) {
-            add_feature(feature);
+            if (feature.at("properties")["Bill"] == billing_period &&
+                feature.at("properties")["WaterType"] == variable) {
+                add_feature(feature);
+            }
         }
     }
 

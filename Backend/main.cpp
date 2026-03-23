@@ -17,10 +17,6 @@ int main() {
 
     //MIN-MAX HEAP ROUTE
     CROW_ROUTE(app, "/minmax/<int>/<int>/<string>/<string>")([](int billing_period, int num, string variable, string method){
-        //make MinMaxHeap
-        //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
-        GeoJSONHeapWrapper<MinMax<json>> MinMaxHeap("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterJSON.geojson");
-
         // JSON initialization and standard fields
         crow::json::wvalue response;
         response["DataStructure"] = "Min-max";
@@ -28,6 +24,11 @@ int main() {
         response["Number"] = num;
         response["VariableOfInterest"] = variable;
         response["Method"] = method;
+
+        //make MinMaxHeap
+        //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
+        GeoJSONHeapWrapper<MinMax<json>> MinMaxHeap("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterJSON.geojson", billing_period, variable);
+
 
         if(method == "Min" || method == "Both") {
             auto start = steady_clock::now();

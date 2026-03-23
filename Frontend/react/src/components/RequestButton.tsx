@@ -87,7 +87,7 @@ export default function RequestButton({billing_period, num, variable, method}: R
             {returnJSON && returnJSON[0].MinUsers && (method === "Min" || method === "Both") &&
                 <>
                     <br/>
-                    <h2><b>Lowest {num} Users</b></h2>
+                    <h2><b>Lowest {returnJSON[0].Number} Users</b></h2>
                     {returnJSON[0].MinUsers.map((user, index )=> (
                         <div className="flex items-center gap-0">
                             <MapMarker color="low" rank={index+1} size={28}/>
@@ -106,7 +106,7 @@ export default function RequestButton({billing_period, num, variable, method}: R
             {returnJSON && returnJSON[0].MaxUsers && (method === "Max" || method === "Both") &&
                 <>
                     <br/>
-                    <h2><b>Highest {num} Users</b></h2>
+                    <h2><b>Highest {returnJSON[0].Number} Users</b></h2>
                     {returnJSON[0].MaxUsers.map((user, index )=> (
                         <div className="flex items-center gap-0">
                             <MapMarker color="high" rank={index+1} size={28}/>
