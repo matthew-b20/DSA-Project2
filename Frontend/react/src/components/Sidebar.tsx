@@ -49,7 +49,7 @@ export default function Sidebar() {
                     <Slider/>
                     <br/>
 
-                    <div className="px-0 py-0 grid grid-cols-2 gap-4">
+                    <div className="px-0 py-0 grid grid-cols-2 gap-2">
                         <WaterChooser/>
                         <MinMaxChooser/>
                     </div>
