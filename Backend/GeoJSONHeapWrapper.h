@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 #include <nlohmann/json.hpp>
-#include "MinMaxHeap.hpp"
+#include "MinMax.h"
 
 using namespace std;
 using json = nlohmann::json; //TYPE ALIAS (renaming type)
@@ -48,9 +48,9 @@ namespace std {
 template <typename HeapType>
 class GeoJSONHeapWrapper {
 private:
-    HeapType<json> heap;
+    HeapType heap;
 
-    static int get_consump(const json& feature) {
+    static float get_consump(const json& feature) {
         if (!feature.contains("properties")) {
             throw runtime_error("GeoJSONHeap: feature has no 'properties' field");
         }
@@ -61,8 +61,8 @@ private:
                 throw runtime_error("GeoJSOnHeap: feature is missing 'Consump' property");
         }
 
-        return properties["Consump"].get<int>();
-        //^ .get<type>() is nhloman::json's way of extracting something from a json into a specific C++ type
+        return properties["Consump"].get<float>();
+        //^ .get<type>() is nloman::json's way of extracting something from a json into a specific C++ type
     }
 
 public:
@@ -79,7 +79,7 @@ public:
             throw runtime_error("GeoJSONHeap: could not open file: " + filepath);
         }
 
-        json geojson = nhlomann::parse(file);
+        json geojson = nlohmann::json::parse(file);
 
         for (const json& feature : geojson.at("features")) {
             add_feature(feature);
@@ -87,7 +87,7 @@ public:
     }
 
     void add_feature(const json& feature) {
-        int consump = get_consump(feature);
+        float consump = get_consump(feature);
         heap.add_node(feature, consump); //calls .add_node() (MinMaxHeap method)
     }
 

@@ -17,7 +17,7 @@ template <typename Node> //placeholder b/c using JSON objects
 class MinMax {
 private:
     struct Entry {
-        int priority;
+        float priority;
         int insertion_place; //insertion order tiebreaker
         Node node; //JSON object w/ water data
 
@@ -263,7 +263,7 @@ private:
 
 public:
     //nodes that try to get inserted twice just get new priority
-    void add_node(const Node& node, int priority = 0) {
+    void add_node(const Node& node, float priority = 0) {
         if (position.count(node)) { //if already in the heap
             remove_node(node);
         }

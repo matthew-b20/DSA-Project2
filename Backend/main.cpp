@@ -2,6 +2,8 @@
 #include <string>
 #include <chrono> // for timing of the methods
 #include "./Crow/include/crow.h"
+#include "GeoJSONHeapWrapper.h"
+#include "MinMax.h"
 using namespace std;
 using namespace chrono;
 
@@ -15,6 +17,10 @@ int main() {
 
     //MIN-MAX HEAP ROUTE
     CROW_ROUTE(app, "/minmax/<int>/<int>/<string>/<string>")([](int billing_period, int num, string variable, string method){
+        //make MinMaxHeap
+        //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
+        GeoJSONHeapWrapper<MinMax<json>> MinMaxHeap("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterJSON.geojson");
+
         // JSON initialization and standard fields
         crow::json::wvalue response;
         response["DataStructure"] = "Min-max";
@@ -23,43 +29,57 @@ int main() {
         response["VariableOfInterest"] = variable;
         response["Method"] = method;
 
-        //ADD FAKE USERS FOR NOW (FOR TESTING)
-        crow::json::wvalue::list min_users;
-
-        for (auto& [address, location_code, consumption, lng, lat] : vector<tuple<string, string, int, double, double>>{
-            {"123 Oak St", "12345", 1, -81.1637, 28.6700},
-            {"456 Maple Ave", "54321", 2, -81.1589, 28.6723},
-            {"789 Pine Rd", "12312", 3, -81.1712, 28.6651},
-            {"321 Elm Blvd", "32132", 4, -81.1558, 28.6689},
-            {"654 Cedar Ln", "11111", 5, -81.1680, 28.6742},
-        }) {
-            crow::json::wvalue entry;
-            entry["Address"] = address;
-            entry["LocationCode"] = location_code;
-            entry["Consump"] = consumption;
-            entry["Coordinates"] = vector<double>{lng, lat};
-            min_users.push_back(move(entry));
-        }
-
-        crow::json::wvalue::list max_users = min_users;
-        response["MinUsers"] = move(min_users);
-        response["MaxUsers"] = move(max_users); //just pretending for now
-        //END OF FAKE USER ADDING
-
-        if(method == "min") {
+        if(method == "Min") {
             auto start = steady_clock::now();
 
             //extract num lowest from min-max heap & add to JSON
+            crow::json::wvalue::list min_users;
+            for (int i = 0; i < num; i++) {
+                json parcel = MinMaxHeap.pop_min(); // returns json object that needs to be parsed and added to return json
+                crow::json::wvalue entry;
+                entry["Address"] = parcel.at("properties")["Address"].get<string>();
+                entry["LocationCode"] =  parcel.at("properties")["LocationCode"].get<float>();;
+                entry["Consump"] =  parcel.at("properties")["Consump"].get<float>();;
+
+                //special handling for coords
+                crow::json::wvalue::list coords;
+                coords.push_back(parcel.at("geometry")["coordinates"][0].get<double>());
+                coords.push_back(parcel.at("geometry")["coordinates"][1].get<double>());
+                entry["Coordinates"] = move(coords);
+
+                min_users.push_back(move(entry));
+            }
+
+            response["MinUsers"] = move(min_users);
+
             auto end = steady_clock::now();
             auto elapsed = duration_cast<nanoseconds>(end-start).count();
             response["Time"] = elapsed;
 
             cout << "You have reached the MIN-MAX HEAP *min* extraction endpoint.";
         }
-        else if (method == "max") {
+        else if (method == "Max") {
             auto start = steady_clock::now();
 
             //extract num highest from min-max heap & add to JSON
+            crow::json::wvalue::list max_users;
+            for (int i = 0; i < num; i++) {
+                json parcel = MinMaxHeap.pop_max(); // returns json object that needs to be parsed and added to return json
+                crow::json::wvalue entry;
+                entry["Address"] = parcel.at("properties")["Address"].get<string>();
+                entry["LocationCode"] =  parcel.at("properties")["LocationCode"].get<float>(); //will change to int later once i fix the geoJSON
+                entry["Consump"] =  parcel.at("properties")["Consump"].get<float>();;
+
+                //special handling for coords
+                crow::json::wvalue::list coords;
+                coords.push_back(parcel.at("geometry")["coordinates"][0].get<double>());
+                coords.push_back(parcel.at("geometry")["coordinates"][1].get<double>());
+                entry["Coordinates"] = move(coords);
+
+                max_users.push_back(move(entry));
+            }
+
+            response["MaxUsers"] = move(max_users);
 
             auto end = steady_clock::now();
             auto elapsed = duration_cast<nanoseconds>(end-start).count();
@@ -84,7 +104,7 @@ int main() {
         response["Variable of interest"] = variable;
         response["Method"] = method;
 
-        if(method == "min") {
+        if(method == "Min") {
             auto start = steady_clock::now();
 
             //extract num lowest from min-max heap & add to JSON
@@ -95,7 +115,7 @@ int main() {
 
             cout << "You have reached the DEAP *min* extraction endpoint.";
         }
-        else if (method == "max") {
+        else if (method == "Max") {
             auto start = steady_clock::now();
 
             //extract num highest from min-max heap & add to JSON
