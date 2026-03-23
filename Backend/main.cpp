@@ -29,7 +29,7 @@ int main() {
         response["VariableOfInterest"] = variable;
         response["Method"] = method;
 
-        if(method == "Min") {
+        if(method == "Min" || method == "Both") {
             auto start = steady_clock::now();
 
             //extract num lowest from min-max heap & add to JSON
@@ -58,7 +58,7 @@ int main() {
 
             cout << "You have reached the MIN-MAX HEAP *min* extraction endpoint.";
         }
-        else if (method == "Max") {
+        if (method == "Max" || method == "Both") {
             auto start = steady_clock::now();
 
             //extract num highest from min-max heap & add to JSON
@@ -87,7 +87,7 @@ int main() {
 
             cout << "You have reached the MIN-MAX HEAP *max* extraction endpoint.";
         }
-        else {
+        if (method != "Max" && method != "Min" && method != "Both") {
             cout << "You have reached the MIN-MAX HEAP endpoint but your arguments are invalid.";
         }
 
@@ -104,7 +104,7 @@ int main() {
         response["Variable of interest"] = variable;
         response["Method"] = method;
 
-        if(method == "Min") {
+        if(method == "Min" || method == "Both") {
             auto start = steady_clock::now();
 
             //extract num lowest from min-max heap & add to JSON
@@ -115,7 +115,7 @@ int main() {
 
             cout << "You have reached the DEAP *min* extraction endpoint.";
         }
-        else if (method == "Max") {
+        if (method == "Max" || method == "Both") {
             auto start = steady_clock::now();
 
             //extract num highest from min-max heap & add to JSON
@@ -126,7 +126,7 @@ int main() {
 
             cout << "You have reached the DEAP *max* extraction endpoint.";
         }
-        else {
+        if (method != "Min" && method != "Max" && method != "Both") {
             cout << "You have reached the DEAP endpoint but your arguments are invalid.";
         }
 
