@@ -6,9 +6,9 @@
 using namespace std;
 
 // DEAP (Double-Ended Heap) rules:
-// Index 0 is UNUSED (dummy/sentinel) — required for the index math to work correctly
-// Index 1 is the MIN-HEAP root  ->  smallest value always here  ->  O(1) getMin
-// Index 2 is the MAX-HEAP root  ->  largest value always here   ->  O(1) getMax
+// Index 0 is not used (dummy) — required for the index math to work correctly
+// Index 1 is the MIN-HEAP root > smallest value here
+// Index 2 is the MAX-HEAP root > largest value here  
 //
 // Deap Fundamentals ^^^^^^ 
 
@@ -234,7 +234,6 @@ private:
 
     // Remove
     Entry remove(int i) {
-        // need ?
         if (i <= 0 || i >= size()) {
             // Stop program
             throw out_of_range("Index is out of range");
@@ -247,7 +246,7 @@ private:
         int last = size() - 1;
 
         if (i == last) {
-            // Removing - POP!
+            // Removing - pop
             heap_array.pop_back();
         }
         else {
