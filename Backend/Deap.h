@@ -17,8 +17,8 @@ class Deap {
 private:
 
     struct Entry {
-        int  priority;
-        int  insertion_place;
+        int priority;
+        int insertion_place;
         Node node;
 
         bool operator<(const Entry& other) const {
@@ -103,8 +103,7 @@ private:
         int partner;
         if (is_in_min_heap(i)) {
             partner = i + half;     
-        }
-        else {
+        } else {
             partner = i - half;     
         }
 
@@ -149,18 +148,15 @@ private:
                 if (heap_array[parent] > heap_array[i]) {
                     swap_entries(parent, i);
                     i = parent;
-                }
-                else {
+                } else {
                     break;
                 }
-            }
-            else {
+            } else {
                 // Max-heap > parent must be larger than child
                 if (heap_array[parent] < heap_array[i]) {
                     swap_entries(parent, i);
                     i = parent;
-                }
-                else {
+                } else {
                     break;
                 }
             }
@@ -181,23 +177,18 @@ private:
 
             if (in_min) {
                 // Min-heap picks the smallest child 
-                if (left_child < size() && is_in_min_heap(left_child) && heap_array[left_child] < heap_array[target])
-                {
+                if (left_child < size() && is_in_min_heap(left_child) && heap_array[left_child] < heap_array[target]) {
                     target = left_child;
                 }
-                if (right_child < size()&& is_in_min_heap(right_child) && heap_array[right_child] < heap_array[target])
-                {
+                if (right_child < size()&& is_in_min_heap(right_child) && heap_array[right_child] < heap_array[target]) {
                     target = right_child;
                 }
-            }
-            else {
+            } else {
                 // Max-heap > picks the largest child 
-                if (left_child < size() && !is_in_min_heap(left_child) && heap_array[left_child] > heap_array[target])
-                {
+                if (left_child < size() && !is_in_min_heap(left_child) && heap_array[left_child] > heap_array[target]) {
                     target = left_child;
                 }
-                if (right_child < size() && !is_in_min_heap(right_child) && heap_array[right_child] > heap_array[target])
-                {
+                if (right_child < size() && !is_in_min_heap(right_child) && heap_array[right_child] > heap_array[target]){
                     target = right_child;
                 }
             }
@@ -235,7 +226,7 @@ private:
     // Remove
     Entry remove(int i) {
         if (i <= 0 || i >= size()) {
-            // Stop program
+            // Stop program - can comment out if needed
             throw out_of_range("Index is out of range");
         }
 
@@ -283,7 +274,7 @@ public:
     // Remove + return the node with the LOWEST priority
     Node deleteMin() {
         if (count() == 0) {
-            // Stop program 
+            // Stop program - can comment out if needed
             throw out_of_range("Heap is empty");
         }
         // The minimum is always at index 1
@@ -293,7 +284,7 @@ public:
     // Remove + return the node with the HIGHEST priority
     Node deleteMax() {
         if (count() == 0) {
-            // Stop program
+            // Stop program - can comment out if needed
             throw out_of_range("Heap is empty");
         }
         if (count() == 1) {
@@ -305,7 +296,7 @@ public:
     // Node with the LOWEST priority without removing it
     Node getMin() const {
         if (count() == 0) {
-            // Stop program
+            // Stop program - can comment out if needed
             throw out_of_range("Heap is empty");
         }
         return heap_array[left_root()].node;
@@ -314,7 +305,7 @@ public:
     // Node with the HIGHEST priority without removing it
     Node getMax() const {
         if (count() == 0) {
-            // Stop program
+            // Stop program can comment out if needed
             throw out_of_range("Heap is empty");
         }
         if (count() == 1) {
