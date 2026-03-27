@@ -2,15 +2,13 @@
 #INITIAL DATA CLEANING & GDB->GeoJSON
 #---------------------------------------
 
-#I do not claim to write quality R code. But it works :)
-
 require(tidyverse)
 require(magrittr)
 require(sf) #for .gdb file
 require(readxl) #for Excel file
 
 #LOAD IN WATER CONSUMPTION DATA
-gdb_path <- "WaterConsumption.gdb"
+gdb_path <- "RawData/WaterConsumption.gdb"
 #st_layers(gdb_path) #view layers
 consump_all <- st_read(gdb_path, layer = "ConsumptionJanSept2025") #load in desired layer
 
@@ -47,12 +45,11 @@ consump_all %<>% mutate(WaterType = case_when(WaterType == "RW" ~ "Reclaimed", W
 #Remove duplicate rows
 consump_all_cleaned <- consump_all %>%
   group_by(LocationCode, ReadOn, WaterType) %>%
-  slice(1) %>%  #Take first row of each group, because all the values ~should~ be the same anyways
   mutate(Consump = max(Consump, na.rm = TRUE)) %>%  #override Consump b/c some of the Consump values aren't the same (even though they should be)
+  slice(1) %>%  #Take first row of each group, because all the values ~should~ be the same anyways
   ungroup()
 
 consump_all_cleaned %<>% mutate(Consump = case_when(Consump < 0 ~ 0, Consump >= 0 ~ Consump)) #recode negative values as 0's
-
 
 #Separate Reclaimed & Potable Usage
 potable_consump <- consump_all_cleaned %>% filter(WaterType == "Potable")
@@ -70,6 +67,22 @@ reclaimed_consump %<>% group_by(LocationCode) %>%
   mutate(Bill = row_number()) %>%
   filter(Bill <= 9) %>%
   ungroup()
+
+# join the two datasets on Location and Bill number
+combined_consump <- potable_consump %>%
+  st_drop_geometry() %>%
+  full_join(
+    reclaimed_consump %>% st_drop_geometry(),
+    by = c("LocationCode", "Bill", "Juris", "Route", "Cycle", "MeterSize",
+           "CustomerCode", "Address", "Misc", "PropertyType",
+           "PropertyCat", "InOut", "SubdivisionCode"),
+    suffix = c("_p", "_r")
+  ) %>%
+  # add the two consumption columns together
+  # using coalesce ensures that if one is missing, it treats it as 0
+  mutate(
+    Total_Consump = coalesce(Consump_p, 0) + coalesce(Consump_r, 0)
+  )
 
 #Pivot Wider for both Potable & Reclaimed datasets
 #Must drop geometry (and remove Shape from id_cols) before pivoting wider
@@ -92,32 +105,37 @@ reclaimed_consump_wide <- reclaimed_consump %>% st_drop_geometry() %>%
     names_glue = "Consump{Bill}"
   )
 
+combined_consump_wide <- combined_consump %>% st_drop_geometry() %>%
+  pivot_wider(
+    id_cols = c(LocationCode, Juris, Route, Cycle, MeterSize, CustomerCode,
+                Address, Misc, PropertyType, PropertyCat, InOut, SubdivisionCode), #need to drop ReadOn or else it can't collapse all locations into one row
+    names_from = Bill,
+    values_from = Consump,
+    names_glue = "Consump{Bill}"
+  )
+
 
 #Combine Potable & Reclaimed Data (can't use original consump_all b/c that doesn't have a "Bill" column)
-total_consump <- bind_rows(potable_consump, reclaimed_consump)
-total_consump_wide <- bind_rows(potable_consump_wide, reclaimed_consump_wide)
-
-#Sum the potable & reclaimed usage data together
-total_consump_wide <- total_consump_wide %>% group_by(LocationCode) %>% summarize(
-  across(starts_with("Consump"), ~ sum(.x, na.rm = TRUE)),
-  across(everything(), ~first(.x)),
-  .groups = "drop"
-)
+total_consump <- bind_rows(potable_consump, reclaimed_consump, combined_consump)
+total_consump_wide <- bind_rows(potable_consump_wide, reclaimed_consump_wide, combined_consump_wide)
 
 #transform to WGS84 (required for mapping in maplibre/web -- VERY IMPORTANT)
 total_consump <- st_transform(total_consump, crs = 4326)
 search_bar_data <- total_consump %>% select(Address, LocationCode) %>% distinct()
 
 #write to geoJSON
-#sf::st_write(total_consump, dsn = "OviedoWaterJSON.geojson", driver = "GeoJSON")
-#sf::st_write(search_bar_data, dsn = "OviedoWaterSearchbar.geojson", driver = "GeoJSON")
+sf::st_write(total_consump, dsn = "CleanedData/OviedoWaterJSON.geojson", driver = "GeoJSON")
+sf::st_write(search_bar_data, dsn = "CleanedData/OviedoWaterSearchbar.geojson", driver = "GeoJSON")
 
+#also write the main dataset to csv for easy looking in Excel
+df <- sf::st_drop_geometry(total_consump)
+write.csv(df, "CleanedData/OviedoWaterCSV.csv", row.names = FALSE)
 
 #---------------------------------------
 #PARCELS & Shapefile->GeoJSON
 #---------------------------------------
 
-parcels_path <- "Parcels.gdb"
+parcels_path <- "RawData/Parcels.gdb"
 
 #VIEW LAYERS
 # st_layers(gdb_path)
@@ -125,13 +143,17 @@ parcels_path <- "Parcels.gdb"
 # st_layers(limits_path)
 
 #Re-add geometry back in so that the maps work right
-original_points <- consump_all_cleaned %>% select(LocationCode, Shape)
+original_points <- consump_all_cleaned %>%
+  select(LocationCode) %>%
+  distinct(LocationCode, .keep_all = TRUE)
 
 potable_consump_wide <- potable_consump_wide %>%
   left_join(original_points, by = "LocationCode")
 
-
 reclaimed_consump_wide <- reclaimed_consump_wide %>%
+  left_join(original_points, by = "LocationCode")
+
+combined_consump_wide <- combined_consump_wide %>%
   left_join(original_points, by = "LocationCode")
 
 total_consump_wide <- total_consump_wide %>%
@@ -170,9 +192,9 @@ parcels_vector <- parcels_vector %>% st_cast("MULTIPOLYGON") #approximate curve 
 #st_geometry_type(parcels_vector) double-check it worked
 
 #do the spatial join
-total_parcels <- st_join(parcels_vector, consump_pts_total, join = st_contains)
-potable_parcels <- st_join(parcels_vector, consump_pts_potable, join = st_contains)
-reclaimed_parcels <- st_join(parcels_vector, consump_pts_reclaimed, join = st_contains)
+total_parcels <- st_join(parcels_vector, consump_pts_total, join = st_intersects)
+potable_parcels <- st_join(parcels_vector, consump_pts_potable, join = st_intersects)
+reclaimed_parcels <- st_join(parcels_vector, consump_pts_reclaimed, join = st_intersects)
 
 #remove parcels that did not contain a point
 #(since my parcels layer contains parcels for all of Seminole County I don't want all the parcels;
@@ -186,8 +208,8 @@ total_parcels %<>% st_transform(crs = 4326)
 #Didn't actually end up using these:
 potable_parcels %<>% st_transform(crs = 4326)
 reclaimed_parcels %<>% st_transform(crs = 4326)
+combined_parcels %<>% st_transform(crs = 4326)
 
-#get JUST the parcels ID-ed by address and location code (all other info will be joined in the backend somehow)
-#write to geoJSON
-#total_parcels %<>% select(Address, LocationCode, Shape) %>% distinct(Address, LocationCode)
-sf::st_write(total_parcels, dsn = "TotalParcelsWGS.geojson", driver = "GeoJSON")
+#write to geoJSON after dropping unneeded features
+total_parcels_pruned <- total_parcels select(-Juris, -Route, -Cycle, -MeterSize, -CustomerCode)
+sf::st_write(total_parcels_pruned, dsn = "TotalParcelsWGS.geojson", driver = "GeoJSON")
