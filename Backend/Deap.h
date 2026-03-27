@@ -95,8 +95,17 @@ private:
 
     // Returns the index of i partner 
     int find_partner(int i) const {
-        if (i == 1) return 2;
-        if (i == 2) return 1;
+        if (i == 1) {
+            if (size() > 2) {
+                return 2;
+            }
+            else {
+                return -1;
+            }
+        }
+        if (i == 2) {
+            return 1;
+        }
 
         int d = level_of(i);
         int half = 1 << (d - 1);   
