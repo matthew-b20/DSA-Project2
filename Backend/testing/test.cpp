@@ -103,5 +103,22 @@ TEST_CASE("Size updates and functions properly", "[inserts]") {
     }
 }
 
+TEST_CASE("Get Min/Max Functions testing across multiple diff values", "[Min/Max Test]") {
+    Deap<int> d;
+    d.insert(4, 13);
+    d.insert(2, 18);
+    d.insert(6, 3);
+    d.insert(1, 29);
+    d.insert(9, 4);
+    d.insert(5, 17);
+    d.insert(54, 23);
 
+    d.print();
+
+    SECTION("Get Min/Max Function Testing") {
+        REQUIRE(d.getMax() == 1); // lowest priority node should be returned
+        REQUIRE(d.getMin() == 6);
+        REQUIRE(d.getSize() == 7); // The size should be 7 because getMin shouldn't delete anything
+    }
+}
 
