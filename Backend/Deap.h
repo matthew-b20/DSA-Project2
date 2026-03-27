@@ -9,6 +9,7 @@ using namespace std;
 // Index 0 is not used (dummy) — required for the index math to work correctly
 // Index 1 is the MIN-HEAP root > smallest value here
 // Index 2 is the MAX-HEAP root > largest value here  
+// Allows for the extraction of both the min and the max value.
 //
 // Deap Fundamentals ^^^^^^ 
 
@@ -86,7 +87,7 @@ private:
         if (i == 2) return false;
 
         int d = level_of(i);
-        int level_start = 1 << d;       
+        int level_start = 1 << d; // Finds the starting index of level using bitwise shifting (2 raised to d)
         int half = 1 << (d - 1); 
 
         return i < level_start + half;  // left half > min heap
@@ -120,7 +121,7 @@ private:
         position[heap_array[j].node] = j;
     }
 
-    // Sift up 
+    // Sift up - Used for restoring heap order after inserting new element
     void sift_up(int i) {
         if (i <= 0) return;
 
@@ -203,7 +204,9 @@ private:
 
         // Check partners constraints 
         int partner = find_partner(i);
-        if (partner == -1) return;
+        if (partner == -1) {
+            return;
+        }
 
         if (is_in_min_heap(i) && heap_array[i] > heap_array[partner]) {
             swap_entries(i, partner);
