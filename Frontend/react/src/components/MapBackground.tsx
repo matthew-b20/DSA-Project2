@@ -85,7 +85,7 @@ export default function MapBackground() {
                 lngLat: e.lngLat, //should update to center of property point later
                 Address: parcel.properties.Address,
                 LocationCode: parcel.properties.LocationCode,
-                consump_period: parcel.properties[consump_period],
+                properties: parcel.properties,
                 PropertyCat: parcel.properties.PropertyCat,
                 PropertyType: parcel.properties.PropertyType,
                 Bill: billingPeriod
@@ -135,7 +135,7 @@ export default function MapBackground() {
                             <div>
                                 <div className="flex items-center gap-1 pr-2">
                                     <img src={'../assets/water-icon.svg'} alt="water icon" width="16" height="16" />
-                                    <p className="uk-h4 text-secondary">{popup.consump_period} KGal</p>
+                                    <p className="uk-h4 text-secondary">{popup.properties[variable+billingPeriod]} KGal</p>
                                 </div>
                                 <p className="text-primary mb-1"><b>{popup.Address}</b></p>
                                 <p><b>Bill: </b>{popup.Bill}</p>

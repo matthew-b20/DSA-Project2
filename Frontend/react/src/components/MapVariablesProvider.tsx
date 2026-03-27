@@ -24,7 +24,7 @@ interface popupInfo {
     LocationCode: string;
     PropertyType: string;
     PropertyCat: string;
-    consump_period: string;
+    properties: string[];
     Bill: number;
 }
 
