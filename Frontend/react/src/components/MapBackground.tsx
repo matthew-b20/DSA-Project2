@@ -9,9 +9,10 @@ import * as pmtiles from 'pmtiles';
 
 const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
 
-const ParcelLayers = memo(({billingPeriod}:{billingPeriod: number}) =>{
-    const tiles_url = `TippecanoeParcelsTake3.pmtiles`;
-    const consump_period = "Consump" + billingPeriod;
+const ParcelLayers = ({billingPeriod, variable}:{billingPeriod: number, variable: string}) =>{
+    const tiles_url = `OviedoParcels.pmtiles`;
+
+    const consump_period = variable + billingPeriod;
 
     return(
         <>
@@ -20,6 +21,21 @@ const ParcelLayers = memo(({billingPeriod}:{billingPeriod: number}) =>{
                 type="vector"
                 url={`pmtiles://${tiles_url}`}
             >
+                <Layer
+                    id="parcel-outlines"
+                    type="line"
+                    source-layer="parcels"
+                    source="parcel-source"
+                    paint={{ //line width interpolation helps lines not look so thick at low zoom
+                        'line-color': '#000000',
+                        'line-width': ['interpolate', ['linear'], ['zoom'],
+                            12, 0.3,
+                            15, 0.8,
+                            18, 1.5
+                        ],
+                        'line-opacity': 1
+                    }}
+                />
                 <Layer
                     id="parcel-fills"
                     type="fill"
@@ -40,26 +56,18 @@ const ParcelLayers = memo(({billingPeriod}:{billingPeriod: number}) =>{
                             100,  '#e22f05',
                             150,  '#7a0403',
                         ],
-                        'fill-opacity': 0.2
-                    }}
-                />
-                <Layer
-                    id="parcel-outlines"
-                    type="line"
-                    source-layer="parcels"
-                    paint={{
-                        'line-color': '#000000',
-                        'line-width': 1
+                        'fill-opacity': 0.6,
+
                     }}
                 />
             </Source>
         </>
     );
-});
+}
 
 export default function MapBackground() {
     const { map } = useMap();
-    const { style, billingPeriod, popup, setPopup, returnJSON, method } = useContext(MapContext) as MapContextType;
+    const { style, billingPeriod, variable, popup, setPopup, returnJSON, method } = useContext(MapContext) as MapContextType;
 
     useEffect(()=>{
         const protocol = new pmtiles.Protocol();
@@ -67,7 +75,7 @@ export default function MapBackground() {
         return () => {maplibregl.removeProtocol("pmtiles")} //optional (not really optional here) cleanup function so React doesn't get weird
     }, []); //empty dependency array
 
-    const consump_period = "Consump" + billingPeriod;
+    const consump_period = variable + billingPeriod;
 
     const handleParcelClick = (e) => {
         const parcel = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens
@@ -172,7 +180,7 @@ export default function MapBackground() {
                         </>
                     }
 
-                    <ParcelLayers billingPeriod={billingPeriod} />
+                    <ParcelLayers billingPeriod={billingPeriod} variable={variable}/>
 
                 </Map>
             </div>
