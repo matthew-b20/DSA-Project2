@@ -50,7 +50,7 @@ export default function Searchbar(){
                 lngLat: {lng, lat}, //should update to center of property point later
                 Address: parcel[0].properties.Address,
                 LocationCode: parcel[0].properties.LocationCode,
-                consump_period: parcel[0].properties[consump_period],
+                properties: parcel[0].properties,
                 PropertyCat: parcel[0].properties.PropertyCat,
                 PropertyType: parcel[0].properties.PropertyType,
                 Bill: billingPeriod

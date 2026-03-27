@@ -31,7 +31,7 @@ const ParcelLayers = ({billingPeriod, variable}:{billingPeriod: number, variable
                         'line-width': ['interpolate', ['linear'], ['zoom'],
                             12, 0.3,
                             15, 0.8,
-                            18, 1.5
+                            18, 1
                         ],
                         'line-opacity': 1
                     }}
@@ -39,6 +39,7 @@ const ParcelLayers = ({billingPeriod, variable}:{billingPeriod: number, variable
                 <Layer
                     id="parcel-fills"
                     type="fill"
+                    beforeId="parcel-outlines"
                     source-layer="parcels" // This MUST match the --layer name from Tippecanoe
                     paint={{
                         'fill-color': [
