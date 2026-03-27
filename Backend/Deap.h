@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 using namespace std;
 
 // DEAP (Double-Ended Heap) rules:
@@ -48,6 +49,14 @@ private:
     int insert_count = 0;
 
     // Helpers
+
+    void printHelper() const {
+        for (int i = 1; i < getSize(); i++) {
+            cout << heap_array[i].node << ":"
+                 << heap_array[i].priority << endl;
+        }
+    }
+
     int size() const {
         return (int)heap_array.size();
     }
@@ -90,7 +99,7 @@ private:
         int level_start = 1 << d; // Finds the starting index of level using bitwise shifting (2 raised to d)
         int half = 1 << (d - 1); 
 
-        return i < level_start + half;  // left half > min heap
+        return i >= level_start + half;  // left half > min heap
     }
 
     // Returns the index of i partner 
@@ -149,12 +158,18 @@ private:
             in_min = true;
         }
 
+
         // Move up within the subtree
         while (i > 2) {
             int parent = get_parent(i);
 
+            if (is_in_min_heap(parent) != in_min) {
+                parent = get_parent(parent);
+            }
+
+            if (parent < 1) break;
+
             if (in_min) {
-                // Min-heap > parent must be smaller than child
                 if (heap_array[parent] > heap_array[i]) {
                     swap_entries(parent, i);
                     i = parent;
@@ -162,7 +177,6 @@ private:
                     break;
                 }
             } else {
-                // Max-heap > parent must be larger than child
                 if (heap_array[parent] < heap_array[i]) {
                     swap_entries(parent, i);
                     i = parent;
@@ -183,32 +197,33 @@ private:
         while (true) {
             int left_child = 2*i;
             int right_child = 2*i + 1;
-            int target = i;    
+            int target = i;
 
             if (in_min) {
-                // Min-heap picks the smallest child 
-                if (left_child < size() && is_in_min_heap(left_child) && heap_array[left_child] < heap_array[target]) {
+                // Min-heap picks the smallest child
+                if (left_child < size()  && heap_array[left_child] < heap_array[target]) {
                     target = left_child;
                 }
-                if (right_child < size()&& is_in_min_heap(right_child) && heap_array[right_child] < heap_array[target]) {
+                if (right_child < size() && heap_array[right_child] < heap_array[target]) {
                     target = right_child;
                 }
             } else {
-                // Max-heap > picks the largest child 
-                if (left_child < size() && !is_in_min_heap(left_child) && heap_array[left_child] > heap_array[target]) {
+                // Max-heap > picks the largest child
+                if (left_child < size()  && heap_array[left_child] > heap_array[target]) {
                     target = left_child;
                 }
-                if (right_child < size() && !is_in_min_heap(right_child) && heap_array[right_child] > heap_array[target]){
+                if (right_child < size()  && heap_array[right_child] > heap_array[target]){
                     target = right_child;
                 }
             }
 
             if (target == i) {
-                break;  
+                break;
             }
 
             swap_entries(i, target);
             i = target;
+//            in_min = is_in_min_heap(i);
         }
 
         // Check partners constraints 
@@ -341,4 +356,11 @@ public:
     int getSize() const {
         return count();
     }
+
+    // Function added for testing and debugging deap test cases
+    void print() const {
+        printHelper();
+    }
 };
+
+
