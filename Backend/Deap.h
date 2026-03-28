@@ -186,7 +186,7 @@ private:
                 if (left_child < size() && is_in_min_heap(left_child) && heap_array[left_child] < heap_array[target]) {
                     target = left_child;
                 }
-                if (right_child < size()&& is_in_min_heap(right_child) && heap_array[right_child] < heap_array[target]) {
+                if (right_child < size() && is_in_min_heap(right_child) && heap_array[right_child] < heap_array[target]) {
                     target = right_child;
                 }
             } else {
