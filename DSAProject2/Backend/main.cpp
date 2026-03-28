@@ -2,7 +2,7 @@
 #include <string>
 #include <chrono> // for timing of the methods
 #include <utility> // for move()
-#include "./Crow/include/crow.h"
+#include "crow.h"
 #include "HeapWrapper.h"
 #include "MinMax.h"
 #include "Deap.h"

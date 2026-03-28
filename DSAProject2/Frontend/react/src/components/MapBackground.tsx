@@ -91,17 +91,14 @@ function useDebounce(value: number, zoom: number) {
     return debouncedValue;
 }
 
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+
 export default function MapBackground() {
     const [zoom, setZoom] = useState(13);
     const { map } = useMap();
     const { style, billingPeriod, variable, popup, setPopup, returnJSON, method, meterLayer } = useContext(MapContext) as MapContextType;
     const consump_period = variable + billingPeriod;
-
-    useEffect(()=>{
-        const protocol = new pmtiles.Protocol();
-        maplibregl.addProtocol("pmtiles", protocol.tile);
-        return () => {maplibregl.removeProtocol("pmtiles")} //optional (not really optional here) cleanup function so React doesn't get weird
-    }, []); //empty dependency array
 
     const handleParcelOrPointClick = (e) => {
         const feature = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens

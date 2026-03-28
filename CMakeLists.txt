@@ -1,57 +1,59 @@
-cmake_minimum_required(VERSION 3.27)
-project(DSA_Project2)
-
-# Catch2 Setup
-Include(FetchContent)
-FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG        v3.5.2
-)
-FetchContent_MakeAvailable(Catch2)
+cmake_minimum_required(VERSION 4.0)
+project(OWA_DSA)
 
 set(CMAKE_CXX_STANDARD 20)
 
-# Easier for relative data paths and usability
-set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Backend)
-# For the crow server to work, you need to download standalone asio from  https://think-async.com/Asio/
-# and put it into the backend folder.
+include(FetchContent)
 
-# Replace the paths here with the paths on your machine.
-
-add_executable(DSA_Project2
-        "${SOURCE_DIR}/main.cpp"
-        "${SOURCE_DIR}/MinMax.h"
-        "${SOURCE_DIR}/Deap.h"
-        "${SOURCE_DIR}/GeoJSONHeapWrapper.h"
-        "${SOURCE_DIR}/GeoJSONHeapWrapper.cpp"
-        "${SOURCE_DIR}/Deap.cpp"
-        "${SOURCE_DIR}/MinMax.cpp")
-
-add_executable(testRun
-        "${SOURCE_DIR}/testing/test.cpp"
-        "${SOURCE_DIR}/MinMax.h"
-        "${SOURCE_DIR}/Deap.h"
-        "${SOURCE_DIR}/GeoJSONHeapWrapper.h"
+# nlohmann/json
+FetchContent_Declare(
+        nlohmann_json
+        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
 )
 
-target_link_libraries(testRun PRIVATE Catch2::Catch2WithMain)
-
-# replace the asio-1.36.0 with whatever standalone asio version you downloaded and named it.
-target_include_directories(DSA_Project2 PRIVATE
-        "${SOURCE_DIR}/Crow/include"
-        "${SOURCE_DIR}/asio-1.36.0/asio-1.36.0/include"
+# Asio (standalone, no Boost)
+FetchContent_Declare(
+        asio
+        GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+        GIT_TAG        asio-1-30-2
+        GIT_SHALLOW    TRUE
 )
 
+# Crow
+set(CROW_USE_BOOST OFF CACHE BOOL "" FORCE)
+set(CROW_ENABLE_SSL OFF CACHE BOOL "" FORCE)
 
-target_link_libraries(DSA_Project2 PRIVATE
-        ws2_32
-        wsock32
-        mswsock
+FetchContent_Declare(
+        crow
+        GIT_REPOSITORY https://github.com/CrowCpp/Crow.git
+        GIT_TAG        v1.2.0
+        GIT_SHALLOW    TRUE
 )
 
-target_compile_definitions(DSA_Project2 PRIVATE
-        CROW_USE_ASIO
+# Download & configure everything
+FetchContent_MakeAvailable(nlohmann_json asio crow)
+
+# Asio
+add_library(asio_headers INTERFACE)
+target_include_directories(asio_headers INTERFACE
+        ${asio_SOURCE_DIR}/asio/include
+)
+target_compile_definitions(asio_headers INTERFACE
         ASIO_STANDALONE
-        _WIN32_WINNT=0x0601
+        ASIO_ENABLE_OLD_SERVICES
+)
+
+# Executable
+add_executable(OWA_DSA
+        DSAProject2/Backend/main.cpp
+        DSAProject2/Backend/MinMax.h
+        DSAProject2/Backend/Deap.h
+        DSAProject2/Backend/HeapWrapper.h
+        DSAProject2/Backend/testing/test.cpp
+)
+
+target_link_libraries(OWA_DSA PRIVATE
+        nlohmann_json::nlohmann_json
+        Crow::Crow
+        asio_headers
 )
