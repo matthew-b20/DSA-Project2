@@ -78,13 +78,21 @@ export default function ReturnedUsers(){
                             </div>
                         </div>
                     ))}
+                    {
+                        returnJSON[0].MinUsers.length === 0 ? (
+                            <p>
+                                Your query returned no matches. If you would like to try a different query,
+                                please adjust your filters in the 'Filters' tab.
+                            </p>
+                        ) : null
+                    }
                 </>
             }
 
             {/* HIGHEST USERS LISTING */}
             {returnJSON && returnJSON[0].MaxUsers && (method === "Max" || method === "Both") &&
                 <>
-                    <br/>
+                    {returnJSON[0].MinUsers && <br/> /*conditional spacing*/}
                     <h2><b>Highest {returnJSON[0].Number} Users</b></h2>
                     <span className="text-s font-medium text-muted-foreground uppercase">
                         Bill {returnJSON[0].BillingPeriod}: {returnJSON[0].VariableOfInterest} Usage
@@ -108,6 +116,14 @@ export default function ReturnedUsers(){
                             </div>
                         </div>
                     ))}
+                    {
+                        returnJSON[0].MaxUsers.length === 0 ? (
+                            <p>
+                                Your query returned no matches. If you would like to try a different query,
+                                please adjust your filters in the 'Filters' tab.
+                            </p>
+                        ) : null
+                    }
                 </>
             }
         </>

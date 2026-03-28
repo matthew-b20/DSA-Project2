@@ -33,7 +33,7 @@ export default function NumberChooser() {
                         Shell
                     </option>
 
-                    <option value="Misc">
+                    <option value="Miscellaneous">
                         Miscellaneous
                     </option>
 
