@@ -105,21 +105,37 @@ export default function MapBackground() {
     }, []); //empty dependency array
 
     const handleParcelOrPointClick = (e) => {
-        const parcel = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens
-        if(parcel){
+        const feature = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens
+        if (feature) {
             //Set Popup state
-            setPopup({
-                lngLat: e.lngLat, //should update to center of property point later
-                Address: parcel.properties.Address,
-                LocationCode: parcel.properties.LocationCode,
-                properties: parcel.properties,
-                PropertyCat: parcel.properties.PropertyCat,
-                PropertyType: parcel.properties.PropertyType,
-                Bill: billingPeriod
-            });
-        } else {
-            // don't do anything
-            setPopup(null);
+            if (feature.layer.id === 'parcel-fills') {
+                const parcel = feature;
+                setPopup({
+                    type: 'parcel', // Flag as parcel
+                    lngLat: e.lngLat, // should update to center of property point later
+                    Address: parcel.properties.Address,
+                    LocationCode: parcel.properties.LocationCode,
+                    properties: parcel.properties,
+                    PropertyCat: parcel.properties.PropertyCat,
+                    PropertyType: parcel.properties.PropertyType,
+                    Bill: billingPeriod
+                });
+            } else if (feature.layer.id === 'meter-points-layer') {
+                const point = feature;
+                setPopup({
+                    type: 'point', // Flag as parcel
+                    lngLat: e.lngLat, //should update to center of property point later
+                    Address: point.properties.Address,
+                    LocationCode: point.properties.LocationCode,
+                    properties: point.properties,
+                    PropertyCat: point.properties.PropertyCat,
+                    PropertyType: point.properties.PropertyType,
+                    Bill: billingPeriod
+                });
+            } else {
+                // don't do anything if just randomly clicking
+                setPopup(null);
+            }
         }
     }
 
@@ -135,7 +151,7 @@ export default function MapBackground() {
                 <Map
                 id="map"
                 attributionControl={false}
-                interactiveLayerIds={['parcel-fills']}
+                interactiveLayerIds={['parcel-fills', 'meter-points-layer']}
                 onClick={handleParcelOrPointClick}
                 initialViewState={{
                     longitude: -81.2,
@@ -169,8 +185,11 @@ export default function MapBackground() {
                                 </div>
                                 <p className="text-primary leading-tight mt-1"><b>{popup.Address}</b></p>
                                 <p className = "mb-1"><b>{variable} • Bill {billingPeriod}</b></p>
-                                {popup.PropertyType && popup.PropertyCat && <p className = "leading-tight">{popup.PropertyType} • {popup.PropertyCat}</p>}
-                                <p className = "leading-tight">Location Code: {popup.LocationCode}</p>
+                                { popup.PropertyType && popup.PropertyCat && <p className = "leading-tight">{popup.PropertyType} • {popup.PropertyCat}</p> }
+                                <p>Location Code: {popup.LocationCode}</p>
+                                <span className="uk-badge uk-badge-primary !text-[8px] !min-h-0 px-1.5 py-0 leading-none font-bold uppercase pointer-events-none">
+                                    {popup.type === "point" ? "Individual meter" : "Parcel aggregate"}
+                                </span>
                             </div>
                         </Popup>
                     )}

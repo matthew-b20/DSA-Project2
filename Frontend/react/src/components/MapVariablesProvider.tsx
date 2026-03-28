@@ -19,6 +19,7 @@ interface ReturnJSON{
 }
 
 interface popupInfo {
+    type: string;
     lngLat: maplibregl.LngLat;
     Address: string;
     LocationCode: string;
