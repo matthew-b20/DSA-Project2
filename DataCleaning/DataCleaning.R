@@ -2,6 +2,7 @@ library(tidyverse)
 library(magrittr)
 library(sf)
 library(readxl)
+library(jsonlite)
 
 # LOAD DATA
 raw <- st_read("RawData/WaterConsumption.gdb", layer = "ConsumptionJanSept2025")
@@ -235,5 +236,4 @@ subdivisions_processed <- subdivisions_raw %>%
   select(Description, FullCode)
 
 # Write the file
-library(jsonlite)
 write_json(subdivisions_processed, "CleanedData/SubdivisionCodes.json", pretty = TRUE)
