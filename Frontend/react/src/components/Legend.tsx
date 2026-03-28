@@ -26,6 +26,8 @@ export default function Legend(){
             colormap={["#30123b", "#4145ab", "#39a2fc", "#1bcfd4", "#24efa2", "#a2fc3c", "#e1dc27", "#f8910b", "#e22f05", "#7a0403"]}
             vmin={0}
             vmax={50000}
+            ticks={{ values: [0, 2, 5, 10, 20, 35, 50, 75, 100, 150],
+                format: (value) => value >= 150 ? `${value}+` : value}} // Updated line
             label="Usage (KGal)"
             units=""
             orientation="vertical"

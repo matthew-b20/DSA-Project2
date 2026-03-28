@@ -9,12 +9,13 @@ import LayersHandler from './LayersHandler.tsx';
 import ZeroExcluder from './ZeroExcluder.tsx';
 import CategoryChooser from './CategoryChooser.tsx';
 import ReturnedUsers from './ReturnedUsers.tsx';
+import SubdivisionChooser from './SubdivisionChooser.tsx';
 import Slider from './Slider.tsx';
 import UseAnimations from "react-useanimations";
 import menu2 from 'react-useanimations/lib/menu2';
 
 export default function Sidebar() {
-    const { billingPeriod, num, variable, method, propertyCat, excludeZeroes } = useContext(MapContext) as MapContextType;
+    const { billingPeriod, num, variable, method, propertyCat, excludeZeroes, subdiv} = useContext(MapContext) as MapContextType;
 
     //console.log() is showing that they're objects w/ a default property so it has to be extracted???
     const Animation = (UseAnimations as any).default || UseAnimations;
@@ -75,6 +76,9 @@ export default function Sidebar() {
                             <CategoryChooser/>
                             <br/>
 
+                            <SubdivisionChooser/>
+                            <br/>
+
                             <ZeroExcluder/>
                             <br/>
                             <br/>
@@ -86,6 +90,7 @@ export default function Sidebar() {
                                 method={method}
                                 category={propertyCat}
                                 exclude={excludeZeroes}
+                                subdiv={subdiv}
                             />
                         </li>
 

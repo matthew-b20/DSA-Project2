@@ -46,6 +46,7 @@ export default function Searchbar(){
             const [lng, lat] = feature.geometry.coordinates
 
             setPopup({
+                type: "point",
                 lngLat: {lng, lat}, //should update to center of property point later
                 Address: parcel[0].properties.Address,
                 LocationCode: parcel[0].properties.LocationCode,

@@ -19,6 +19,7 @@ interface ReturnJSON{
 }
 
 interface popupInfo {
+    type: string;
     lngLat: maplibregl.LngLat;
     Address: string;
     LocationCode: string;
@@ -61,6 +62,9 @@ export interface MapContextType {
 
     propertyCat: string;
     setPropertyCat: (val: string) => void;
+
+    subdiv: string;
+    setSubdiv: (val: string) => void;
 }
 
 export const MapContext = createContext<MapContextType | null>(null);
@@ -77,6 +81,7 @@ export default function MapVariablesProvider({children} : {children: React.React
     const [meterLayer, setMeterLayer] = useState<boolean>(true);
     const [excludeZeroes, setExcludeZeroes] = useState<boolean>(true);
     const [propertyCat, setPropertyCat] = useState<string>("All");
+    const [subdiv, setSubdiv] = useState<string>("All");
 
     return(
         <MapContext.Provider value = {{
@@ -90,7 +95,8 @@ export default function MapVariablesProvider({children} : {children: React.React
             parcelLayer, setParcelLayer,
             meterLayer, setMeterLayer,
             excludeZeroes, setExcludeZeroes,
-            propertyCat, setPropertyCat
+            propertyCat, setPropertyCat,
+            subdiv, setSubdiv
         }}
         >
             {children}

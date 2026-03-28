@@ -62,7 +62,6 @@ const ParcelLayers = ({billingPeriod, variable}:{billingPeriod: number, variable
                         150, '#7a0403',
                     ],
                     'fill-opacity': 0.6,
-
                 }}
             />
         </Source>
@@ -97,6 +96,7 @@ export default function MapBackground() {
     const [zoom, setZoom] = useState(12);
     const { map } = useMap();
     const { style, billingPeriod, variable, popup, setPopup, returnJSON, method, meterLayer } = useContext(MapContext) as MapContextType;
+    const consump_period = variable + billingPeriod;
 
     useEffect(()=>{
         const protocol = new pmtiles.Protocol();
@@ -104,22 +104,38 @@ export default function MapBackground() {
         return () => {maplibregl.removeProtocol("pmtiles")} //optional (not really optional here) cleanup function so React doesn't get weird
     }, []); //empty dependency array
 
-    const handleParcelClick = (e) => {
-        const parcel = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens
-        if(parcel){
+    const handleParcelOrPointClick = (e) => {
+        const feature = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens
+        if (feature) {
             //Set Popup state
-            setPopup({
-                lngLat: e.lngLat, //should update to center of property point later
-                Address: parcel.properties.Address,
-                LocationCode: parcel.properties.LocationCode,
-                properties: parcel.properties,
-                PropertyCat: parcel.properties.PropertyCat,
-                PropertyType: parcel.properties.PropertyType,
-                Bill: billingPeriod
-            });
-        } else {
-            // don't do anything
-            setPopup(null);
+            if (feature.layer.id === 'parcel-fills') {
+                const parcel = feature;
+                setPopup({
+                    type: 'parcel', // Flag as parcel
+                    lngLat: e.lngLat, // should update to center of property point later
+                    Address: parcel.properties.Address,
+                    LocationCode: parcel.properties.LocationCode,
+                    properties: parcel.properties,
+                    PropertyCat: parcel.properties.PropertyCat,
+                    PropertyType: parcel.properties.PropertyType,
+                    Bill: billingPeriod
+                });
+            } else if (feature.layer.id === 'meter-points-layer') {
+                const point = feature;
+                setPopup({
+                    type: 'point', // Flag as parcel
+                    lngLat: e.lngLat, //should update to center of property point later
+                    Address: point.properties.Address,
+                    LocationCode: point.properties.LocationCode,
+                    properties: point.properties,
+                    PropertyCat: point.properties.PropertyCat,
+                    PropertyType: point.properties.PropertyType,
+                    Bill: billingPeriod
+                });
+            } else {
+                // don't do anything if just randomly clicking
+                setPopup(null);
+            }
         }
     }
 
@@ -135,8 +151,8 @@ export default function MapBackground() {
                 <Map
                 id="map"
                 attributionControl={false}
-                interactiveLayerIds={['parcel-fills']}
-                onClick={handleParcelClick}
+                interactiveLayerIds={['parcel-fills', 'meter-points-layer']}
+                onClick={handleParcelOrPointClick}
                 initialViewState={{
                     longitude: -81.2,
                     latitude: 28.67,
@@ -169,8 +185,11 @@ export default function MapBackground() {
                                 </div>
                                 <p className="text-primary leading-tight mt-1"><b>{popup.Address}</b></p>
                                 <p className = "mb-1"><b>{variable} • Bill {billingPeriod}</b></p>
-                                {popup.PropertyType && popup.PropertyCat && <p className = "leading-tight">{popup.PropertyType} • {popup.PropertyCat}</p>}
-                                <p className = "leading-tight">Location Code: {popup.LocationCode}</p>
+                                { popup.PropertyType && popup.PropertyCat && <p className = "leading-tight">{popup.PropertyType} • {popup.PropertyCat}</p> }
+                                <p>Location Code: {popup.LocationCode}</p>
+                                <span className="uk-badge uk-badge-primary !text-[8px] !min-h-0 px-1.5 py-0 leading-none font-bold uppercase pointer-events-none">
+                                    {popup.type === "point" ? "Individual meter" : "Parcel aggregate"}
+                                </span>
                             </div>
                         </Popup>
                     )}
@@ -223,16 +242,30 @@ export default function MapBackground() {
                             source-layer="OviedoWaterWide"
                             layout={{ visibility: meterLayer ? 'visible' : 'none' }}
                             paint={{
+                                'circle-color': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['get', consump_period],
+                                    0, '#30123b',
+                                    2, '#4145ab',
+                                    5, '#39a2fc',
+                                    10, '#1bcfd4',
+                                    20, '#24efa2',
+                                    35, '#a2fc3c',
+                                    50, '#e1dc27',
+                                    75, '#f8910b',
+                                    100, '#e22f05',
+                                    150, '#7a0403',
+                                ],
                                 'circle-radius': [
                                     'interpolate', ['linear'], ['zoom'],
                                     10, 0.5, // at zoom 10 do radius 2
                                     14, 2,
                                     18, 6
                                 ],
-                                'circle-color': '#FFFFFF',
-                                'circle-stroke-width': 1,
+                                'circle-stroke-width': 0.5,
                                 'circle-stroke-color': '#000000',
-                                'circle-opacity': 0.6,
+                                'circle-opacity': 0.7,
                             }}
                         />
                     </Source>

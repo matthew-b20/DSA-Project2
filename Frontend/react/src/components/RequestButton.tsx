@@ -10,11 +10,12 @@ interface RequestButtonProps{
     method: string;
     category: string;
     exclude: boolean
+    subdiv: string;
 }
 
 //THIS BUTTON MAKES A REQUEST TO THE CROW SERVER BASED ON THE BASSED IN PROPS
 //THIS WILL NEED TO BE UPDATED LATER OFC
-export default function RequestButton({billing_period, num, variable, method, category, exclude}: RequestButtonProps) {
+export default function RequestButton({billing_period, num, variable, method, category, exclude, subdiv}: RequestButtonProps) {
     const Animation = (UseAnimations as any).default || UseAnimations;
     const loadingAnimationData = (loading as any).default || loading;
 
@@ -22,8 +23,8 @@ export default function RequestButton({billing_period, num, variable, method, ca
     const [isLoading, setLoading] = useState(false);
 
     const makeRequest = async () => {
-        const min_max_endpoint = `/api/minmax/${billing_period}/${num}/${variable}/${method}/${category}/${Number(exclude)}`; //Crow server url
-        const deap_endpoint = `/api/deap/${billing_period}/${num}/${variable}/${method}/${category}/${Number(exclude)}`;
+        const min_max_endpoint = `/api/minmax/${billing_period}/${num}/${variable}/${method}/${category}/${Number(exclude)}/${subdiv}`; //Crow server url
+        const deap_endpoint = `/api/deap/${billing_period}/${num}/${variable}/${method}/${category}/${Number(exclude)}/${subdiv}`;
         
         try{
             setLoading(true);
