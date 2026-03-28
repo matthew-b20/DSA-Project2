@@ -19,7 +19,7 @@ private:
     struct Entry {
         float priority;
         int insertion_place; //insertion order tiebreaker
-        Node node; //JSON object w/ water data
+        Node node; //Parcel object w/ water data
 
         //OPERATOR OVERLOADING (<, >, <=, >=)
         bool operator<(const Entry& other) const {

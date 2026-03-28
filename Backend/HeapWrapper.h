@@ -18,34 +18,25 @@ using json = nlohmann::json; //TYPE ALIAS (renaming type)
 //Which means unordered_map<json, int> would fail unless we specifically make it not fail
 //Since each property has a unique location code, then that's what will get used as unique_key
 
-//ADD into the standard namespace b/c hash lives inside namespace std
+struct Parcel {
+    string address;
+    string location_code;
+    float consumption;
+    double lat;
+    double lon;
+
+    //operator overload needed for hash?
+    bool operator==(const Parcel& other) const {
+        return location_code == other.location_code;
+    }
+};
+
+//Custom hashing for Parcel type
 namespace std {
-
-    template <> //define a specific implementation of a template
-    struct hash<json> { //defining hash specifically for json
-        size_t operator()(const json& feature) const {
-
-            //SHOULD HOPEFULLY STOP SERVER FROM CRASHING DUE TO ISSUES W/ DEAP:
-            if (feature.is_null() || !feature.is_object() || !feature.contains("properties")) {
-                return 0;
-            }
-
-            const json& properties = feature.at("properties");
-
-            if (properties.contains("LocationCode") && !properties["LocationCode"].is_null()) {
-                //hashing only the unique identifier
-                string id = properties["LocationCode"].is_string() ?
-                    properties["LocationCode"].get<string>() :
-                    to_string(properties["LocationCode"].get<float>());
-
-                //hash<string> is the type, {} creates a temporary object, then (id) is called on it
-                //the operator() is an instance method so you must create a temp instance w/ {} to use it
-                return hash<string>{}(id);
-            }
-
-            //Fallback (but shouldn't be needed)
-            //hashing the entire dumped feature (if needed) would be very slow
-            return hash<string>{}(feature.dump());
+    template <>
+    struct hash<Parcel> {
+        size_t operator()(const Parcel& parcel) const {
+            return hash<string>{}(parcel.location_code);
         }
     };
 }
@@ -58,23 +49,12 @@ class HeapWrapper {
 private:
     HeapType heap;
 
-    float get_consump(const json& feature) {
-        if (!feature.contains("properties")) {
-            throw runtime_error("GeoJSONHeap: feature has no 'properties' field");
-        }
-
-        const json& properties = feature["properties"];
-
-        return properties[desired_water_bill].template get<float>(); //won't work w/o explicitly "template" for whatever reason
-        //^ .get<type>() is nlohmann::json's way of extracting something from a json into a specific C++ type
-    }
-
 public:
     string desired_water_bill;
 
     //Constructor
     HeapWrapper(const json& parsed_geojson, int& billing_period, const string& variable,
-        const string& cat, const bool& exclude) {
+        const string& cat, const int& exclude) {
 
         desired_water_bill = variable + to_string(billing_period);
         cout << desired_water_bill << endl;
@@ -95,37 +75,60 @@ public:
             }
 
             // Exclude zeroes
-            if (exclude && props[desired_water_bill] == 0) {
+            if ((exclude == 1) && (props[desired_water_bill] == 0)) {
                 continue;
             }
 
-            // Add feature 1X
-            add_feature(feature);
+            // Construct Parcel from feature
+
+            // Skip parcel entirely if somehow got corrupted and no longer has a unique ID for the hash map
+            if (!props.contains("LocationCode") || props["LocationCode"].is_null()) {
+                continue;
+            }
+
+            Parcel parcel;
+
+            // Also handle the address extraction safely if it maybe got corrupted
+            parcel.address = (!props.contains("Address") || props["Address"].is_null()) ?
+                 "Unknown Address" : props["Address"].get<string>();
+
+            // Handle LocationCode as either a number or a string
+            if (props["LocationCode"].is_number()) {
+                // Extract as an integer and convert to string
+                parcel.location_code = to_string(props["LocationCode"].get<long long>());
+            } else {
+                parcel.location_code = props["LocationCode"].get<string>();
+            }
+            parcel.consumption = props[desired_water_bill].template get<float>();
+            parcel.lat = feature["geometry"]["coordinates"][0].get<double>();
+            parcel.lon = feature["geometry"]["coordinates"][1].get<double>();
+
+            // Add feature
+            add_feature(parcel);
         }
     }
 
-    void add_feature(const json& feature) {
-        float consump = get_consump(feature);
-        heap.add_node(feature, consump); //calls .add_node() (MinMaxHeap/Deap method)
+    void add_feature(const Parcel& feature) {
+        heap.add_node(feature, feature.consumption); //calls .add_node() (MinMaxHeap/Deap method)
     }
 
-    void remove_feature(const json& feature) {
+    void remove_feature(const Parcel& feature) {
         heap.remove_node(feature); //calls .remove_node() (MinMaxHea/Deap method)
     }
 
-    json pop_min() {
+    Parcel pop_min() {
         return heap.pop_min_node();
     }
 
-    json pop_max() {
+    Parcel pop_max() {
         return heap.pop_max_node();
     }
 
-    json peek_min() const {
+    Parcel peek_min() const {
         return heap.peek_min_node();
     }
 
-    json peek_max() const {
+    Parcel peek_max() const {
         return heap.peek_max_node();
     }
 
@@ -136,5 +139,4 @@ public:
     int  num_nodes() const {
         return heap.num_nodes();
     }
-
 };
