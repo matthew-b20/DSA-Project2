@@ -186,7 +186,7 @@ export default function MapBackground() {
                                 <p className="text-primary leading-tight mt-1"><b>{popup.Address}</b></p>
                                 <p className = "mb-1"><b>{variable} • Bill {billingPeriod}</b></p>
                                 { popup.PropertyType && popup.PropertyCat && <p className = "leading-tight">{popup.PropertyType} • {popup.PropertyCat}</p> }
-                                <p>Location Code: {popup.LocationCode}</p>
+                                {popup.type === "point" ? <p>Location Code: {popup.LocationCode}</p> : null}
                                 <span className="uk-badge uk-badge-primary !text-[8px] !min-h-0 px-1.5 py-0 leading-none font-bold uppercase pointer-events-none">
                                     {popup.type === "point" ? "Individual meter" : "Parcel aggregate"}
                                 </span>
