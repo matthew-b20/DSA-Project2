@@ -1,3 +1,4 @@
+
 #pragma once
 #include <cmath>
 #include <stdexcept>
@@ -94,7 +95,13 @@ private:
 
     // Returns the index of i partner 
     int find_partner(int i) const {
-        if (i == 1) return 2;
+        if (i == 1) {
+            if (size() > 2) {
+                return 2;
+            } else {
+                return -1;
+            }
+        }
         if (i == 2) return 1;
 
         int d = level_of(i);
@@ -199,6 +206,8 @@ private:
 
             swap_entries(i, target);
             i = target;
+            // Fix bug
+            in_min = is_in_min_heap(i);
         }
 
         // Check partners constraints 
