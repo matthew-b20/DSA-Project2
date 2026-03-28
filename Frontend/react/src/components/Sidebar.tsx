@@ -5,6 +5,7 @@ import RequestButton from  './RequestButton.tsx';
 import NumberChooser from  './NumberChooser.tsx';
 import WaterChooser from  './WaterChooser.tsx';
 import MinMaxChooser from  './MinMaxChooser.tsx';
+import LayersHandler from './LayersHandler.tsx';
 import Slider from './Slider.tsx';
 import UseAnimations from "react-useanimations";
 import menu2 from 'react-useanimations/lib/menu2';
@@ -43,6 +44,10 @@ export default function Sidebar() {
 
                     {/*INPUT COMPONENTS*/}
                     <h4 className = "uk-h4 text-primary mb-4">Filters</h4>
+
+                    <LayersHandler/>
+                    <br/>
+
                     <NumberChooser/>
                     <br/>
 

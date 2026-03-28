@@ -46,11 +46,7 @@ export default function RequestButton({billing_period, num, variable, method}: R
             console.log(`Crow server request error: ${error}`);
         }
         finally{
-            // add delay so you can actually see the loading animation (lol)
-            // setTimeout() is built-in -- it executes the given function after the given (non-blocking) delay
-            setTimeout(() => {
-                setLoading(false);
-            }, 1500);
+            setLoading(false);
         }
     }
 
@@ -69,8 +65,8 @@ export default function RequestButton({billing_period, num, variable, method}: R
                     <br/>
 
                     <h4 className = "uk-h4 text-primary mb-4">Performance</h4>
-                    <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[0].Time} ns</span></p>
-                    <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[1].Time} ns</span></p>
+                    <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[0].Time} sec</span></p>
+                    <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[1].Time} sec</span></p>
 
                     <br/>
                     <hr className="h-[2px] border-none" style={{ backgroundColor: "#00adb0" }}/>

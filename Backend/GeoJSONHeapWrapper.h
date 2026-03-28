@@ -50,24 +50,33 @@ class GeoJSONHeapWrapper {
 private:
     HeapType heap;
 
-    static float get_consump(const json& feature) {
+    float get_consump(const json& feature) {
         if (!feature.contains("properties")) {
             throw runtime_error("GeoJSONHeap: feature has no 'properties' field");
         }
 
         const json& properties = feature["properties"];
 
-        if (!properties.contains("Consump") || properties["Consump"].is_null()) {
-                throw runtime_error("GeoJSOnHeap: feature is missing 'Consump' property");
+
+        if (!properties.contains(desired_water_bill) || properties[desired_water_bill].is_null()) {
+            cout << "null" <<  properties["Address"] << endl;
+            //throw runtime_error("GeoJSONHeap: feature is missing '{water}{bill}' property");
+            return(12345.0);
         }
 
-        return properties["Consump"].get<float>();
+        //this is causing errors rn b/c there are some nulls...
+        //return(2.0);
+        return properties[desired_water_bill].template get<float>(); //won't work w/o explicity "template" for whatever reason
         //^ .get<type>() is nloman::json's way of extracting something from a json into a specific C++ type
     }
 
 public:
+    string desired_water_bill;
+
     //Constructor
-    GeoJSONHeapWrapper(const string& filepath, const int& billing_period, const string& variable) {
+    GeoJSONHeapWrapper(const string& filepath, int& billing_period, const string& variable) {
+        desired_water_bill = variable + to_string(billing_period);
+        cout << desired_water_bill << endl;
         load_file(filepath, billing_period, variable);
     }
 
@@ -82,10 +91,32 @@ public:
         json geojson = nlohmann::json::parse(file);
 
         //only query for the selected billing period and water type (Potable, Reclaimed, Both, etc.)
+        /*
         for (const json& feature : geojson.at("features")) {
             if (feature.at("properties")["Bill"] == billing_period &&
                 feature.at("properties")["WaterType"] == variable) {
                 add_feature(feature);
+            }
+        }
+        */ //no more filtering needed now that everything is wide format!!!
+
+        for (const json& feature : geojson.at("features")) {
+            //minimize the JSON to the relevant fields
+            /*
+            address
+            location code
+            geometry
+            {potable/reclaimed/combined}{billing_period}
+             */
+            //ideally we would minimize the feature first...
+            bool no_null = true;
+            for (const json& property : feature.at("properties")) {
+                if (property.is_null()) {
+                    no_null = false;
+                }
+            }
+            if (no_null) {
+                add_feature(feature); //add feature w/o filtering b/c not needed anymore
             }
         }
     }

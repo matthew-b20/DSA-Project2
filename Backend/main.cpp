@@ -27,7 +27,7 @@ int main() {
 
         //make MinMaxHeap
         //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
-        GeoJSONHeapWrapper<MinMax<json>> MinMaxHeap("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterJSON.geojson", billing_period, variable);
+        GeoJSONHeapWrapper<MinMax<json>> MinMaxHeap("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterWide.geojson", billing_period, variable);
 
 
         if(method == "Min" || method == "Both") {
@@ -40,7 +40,7 @@ int main() {
                 crow::json::wvalue entry;
                 entry["Address"] = parcel.at("properties")["Address"].get<string>();
                 entry["LocationCode"] =  parcel.at("properties")["LocationCode"].get<float>();;
-                entry["Consump"] =  parcel.at("properties")["Consump"].get<float>();;
+                entry["Consump"] =  parcel.at("properties")[MinMaxHeap.desired_water_bill].get<float>();;
 
                 //special handling for coords
                 crow::json::wvalue::list coords;
@@ -54,7 +54,7 @@ int main() {
             response["MinUsers"] = move(min_users);
 
             auto end = steady_clock::now();
-            auto elapsed = duration_cast<nanoseconds>(end-start).count();
+            auto elapsed = duration_cast<seconds>(end-start).count();
             response["Time"] = elapsed;
 
             cout << "You have reached the MIN-MAX HEAP *min* extraction endpoint.";
@@ -69,7 +69,7 @@ int main() {
                 crow::json::wvalue entry;
                 entry["Address"] = parcel.at("properties")["Address"].get<string>();
                 entry["LocationCode"] =  parcel.at("properties")["LocationCode"].get<float>(); //will change to int later once i fix the geoJSON
-                entry["Consump"] =  parcel.at("properties")["Consump"].get<float>();;
+                entry["Consump"] =  parcel.at("properties")[MinMaxHeap.desired_water_bill].get<float>();;
 
                 //special handling for coords
                 crow::json::wvalue::list coords;
@@ -83,7 +83,7 @@ int main() {
             response["MaxUsers"] = move(max_users);
 
             auto end = steady_clock::now();
-            auto elapsed = duration_cast<nanoseconds>(end-start).count();
+            auto elapsed = duration_cast<seconds>(end-start).count();
             response["Time"] = elapsed;
 
             cout << "You have reached the MIN-MAX HEAP *max* extraction endpoint.";

@@ -119,30 +119,20 @@ static_cols <- c("LocationCode","Juris","Route","Cycle","MeterSize","CustomerCod
                  "InOut","SubdivisionCode")
 
 # helper: pivot one water-type df to wide, keeping static cols
-pivot_type <- function(df, prefix, has_static = TRUE) {
-  base <- df %>% st_drop_geometry()
-  if (has_static) {
-    base %>%
-      pivot_wider(
-        id_cols     = all_of(static_cols),
-        names_from  = Bill,
-        values_from = Consump,
-        names_glue  = paste0(prefix, "{Bill}")
-      )
-  } else {
-    base %>%
-      pivot_wider(
-        id_cols     = LocationCode,
-        names_from  = Bill,
-        values_from = Consump,
-        names_glue  = paste0(prefix, "{Bill}")
-      )
-  }
+pivot_type <- function(df, prefix) {
+  df %>%
+    st_drop_geometry() %>%
+    pivot_wider(
+      id_cols     = LocationCode,
+      names_from  = Bill,
+      values_from = Consump,
+      names_glue  = paste0(prefix, "{Bill}")
+    )
 }
 
-potable_wide   <- pivot_type(potable,        "Potable",   has_static = TRUE)
-reclaimed_wide <- pivot_type(reclaimed,      "Reclaimed", has_static = TRUE)
-combined_wide  <- pivot_type(combined_long,  "Combined",  has_static = FALSE)
+potable_wide <- pivot_type(potable, "Potable")
+reclaimed_wide <- pivot_type(reclaimed, "Reclaimed")
+combined_wide <- pivot_type(combined_long, "Combined")
 
 # add per-type averages (rowMeans respects NA)
 add_avg <- function(df, prefix) {
@@ -158,15 +148,15 @@ reclaimed_wide <- add_avg(reclaimed_wide, "Reclaimed")
 combined_wide  <- add_avg(combined_wide,  "Combined")
 
 # join all three together; potable carries the static attrs
-wide_all <- potable_wide %>%
-  left_join(
-    reclaimed_wide %>% dplyr::select(LocationCode, starts_with("Reclaimed")),
-    by = "LocationCode"
-  ) %>%
-  left_join(
-    combined_wide  %>% dplyr::select(LocationCode, starts_with("Combined")),
-    by = "LocationCode"
-  )
+all_locations <- cleaned %>%
+  st_drop_geometry() %>%
+  distinct(LocationCode, .keep_all = TRUE) %>%
+  dplyr::select(all_of(static_cols))
+
+wide_all <- all_locations %>%
+  left_join(potable_wide   %>% dplyr::select(LocationCode, starts_with("Potable")),   by = "LocationCode") %>%
+  left_join(reclaimed_wide %>% dplyr::select(LocationCode, starts_with("Reclaimed")), by = "LocationCode") %>%
+  left_join(combined_wide  %>% dplyr::select(LocationCode, starts_with("Combined")),  by = "LocationCode")
 
 # reorder the columns more nicely: static attributes | Potable1, Reclaimed1, Combined1, Potable2, ... | averages
 interleaved <- map(1:9, ~ paste0(c("Potable","Reclaimed","Combined"), .x)) %>%
@@ -177,6 +167,13 @@ avg_cols <- c("PotableAvg","ReclaimedAvg","CombinedAvg") %>% .[. %in% names(wide
 
 wide_all <- wide_all %>%
   dplyr::select(all_of(static_cols), all_of(interleaved), all_of(avg_cols))
+
+consump_cols <- c(paste0(rep(c("Potable","Reclaimed","Combined"), each = 9), 1:9),
+                  "PotableAvg","ReclaimedAvg","CombinedAvg") %>%
+  .[. %in% names(wide_all)]
+
+wide_all <- wide_all %>%
+  mutate(across(all_of(consump_cols), ~ replace_na(.x, -1)))
 
 # attach point geometry (one point per LocationCode, WGS84)
 geom_lookup <- cleaned %>%
@@ -213,7 +210,7 @@ parcel_consump <- points_tagged %>%
   st_drop_geometry() %>%
   group_by(.parcel_idx) %>%
   summarise(
-    across(all_of(static_cols_all),  first),
+    across(all_of(static_cols_all), ~ first(na.omit(.x))),
     across(all_of(consump_cols_all), ~ sum(.x, na.rm = TRUE)),
     n_meters = n(),
     .groups = "drop"
@@ -221,7 +218,8 @@ parcel_consump <- points_tagged %>%
 
 parcel_sf <- parcels %>%
   inner_join(parcel_consump, by = ".parcel_idx") %>%
-  dplyr::select(-.parcel_idx)
+  dplyr::select(-.parcel_idx) %>%
+  mutate(across(all_of(consump_cols[consump_cols %in% names(.)]), ~ replace_na(.x, -1)))
 
 st_write(parcel_sf, "CleanedData/OviedoParcels.geojson",
          driver = "GeoJSON", delete_dsn = TRUE)

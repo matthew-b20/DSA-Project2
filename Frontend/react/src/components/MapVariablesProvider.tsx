@@ -49,6 +49,12 @@ export interface MapContextType {
 
     returnJSON: ReturnJSON[]
     setReturnJSON: (val: ReturnJSON[]) => void;
+
+    parcelLayer: boolean;
+    setParcelLayer: (val: boolean) => void;
+
+    meterLayer: boolean;
+    setMeterLayer: (val: boolean) => void;
 }
 
 export const MapContext = createContext<MapContextType | null>(null);
@@ -61,6 +67,9 @@ export default function MapVariablesProvider({children} : {children: React.React
     const [style, setStyle] = useState(true);
     const [popup, setPopup] = useState<popupInfo | null>(null);
     const [returnJSON, setReturnJSON] = useState<ReturnJSON[] | null>(null);
+    const [parcelLayer, setParcelLayer] = useState<boolean>(true);
+    const [meterLayer, setMeterLayer] = useState<boolean>(true);
+
 
     return(
         <MapContext.Provider value = {{
@@ -70,7 +79,10 @@ export default function MapVariablesProvider({children} : {children: React.React
             method, setMethod,
             style, setStyle,
             popup, setPopup,
-            returnJSON, setReturnJSON}}
+            returnJSON, setReturnJSON,
+            parcelLayer, setParcelLayer,
+            meterLayer, setMeterLayer,
+        }}
         >
             {children}
         </MapContext.Provider>

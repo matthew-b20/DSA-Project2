@@ -14,61 +14,64 @@ const ParcelLayers = ({billingPeriod, variable}:{billingPeriod: number, variable
 
     const consump_period = variable + billingPeriod;
 
-    return(
-        <>
-            <Source
-                id="parcel-source"
-                type="vector"
-                url={`pmtiles://${tiles_url}`}
-            >
-                <Layer
-                    id="parcel-outlines"
-                    type="line"
-                    source-layer="parcels"
-                    source="parcel-source"
-                    paint={{ //line width interpolation helps lines not look so thick at low zoom
-                        'line-color': '#000000',
-                        'line-width': ['interpolate', ['linear'], ['zoom'],
-                            12, 0.3,
-                            15, 0.8,
-                            18, 1
-                        ],
-                        'line-opacity': 1
-                    }}
-                />
-                <Layer
-                    id="parcel-fills"
-                    type="fill"
-                    beforeId="parcel-outlines"
-                    source-layer="parcels" // This MUST match the --layer name from Tippecanoe
-                    paint={{
-                        'fill-color': [
-                            'interpolate',
-                            ['linear'],
-                            ['get', consump_period],
-                            0,    '#30123b',
-                            2,    '#4145ab',
-                            5,    '#39a2fc',
-                            10,   '#1bcfd4',
-                            20,   '#24efa2',
-                            35,   '#a2fc3c',
-                            50,   '#e1dc27',
-                            75,   '#f8910b',
-                            100,  '#e22f05',
-                            150,  '#7a0403',
-                        ],
-                        'fill-opacity': 0.6,
+    const { parcelLayer } = useContext(MapContext) as MapContextType;
 
-                    }}
-                />
-            </Source>
-        </>
+
+    return(
+        <Source
+            id="parcel-source"
+            type="vector"
+            url={`pmtiles://${tiles_url}`}
+        >
+            <Layer
+                id="parcel-outlines"
+                type="line"
+                source-layer="parcels"
+                source="parcel-source"
+                layout={{ visibility: parcelLayer ? 'visible' : 'none' }}
+                paint={{ //line width interpolation helps lines not look so thick at low zoom
+                    'line-color': '#000000',
+                    'line-width': ['interpolate', ['linear'], ['zoom'],
+                        12, 0.3,
+                        15, 0.8,
+                        18, 1
+                    ],
+                    'line-opacity': 1
+                }}
+            />
+            <Layer
+                id="parcel-fills"
+                type="fill"
+                beforeId="parcel-outlines"
+                source-layer="parcels" // This MUST match the --layer name from Tippecanoe
+                layout={{ visibility: parcelLayer ? 'visible' : 'none' }}
+                paint={{
+                    'fill-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', consump_period],
+                        0, '#30123b',
+                        2, '#4145ab',
+                        5, '#39a2fc',
+                        10, '#1bcfd4',
+                        20, '#24efa2',
+                        35, '#a2fc3c',
+                        50, '#e1dc27',
+                        75, '#f8910b',
+                        100, '#e22f05',
+                        150, '#7a0403',
+                    ],
+                    'fill-opacity': 0.6,
+
+                }}
+            />
+        </Source>
     );
 }
 
 export default function MapBackground() {
     const { map } = useMap();
-    const { style, billingPeriod, variable, popup, setPopup, returnJSON, method } = useContext(MapContext) as MapContextType;
+    const { style, billingPeriod, variable, popup, setPopup, returnJSON, method, meterLayer } = useContext(MapContext) as MapContextType;
 
     useEffect(()=>{
         const protocol = new pmtiles.Protocol();
@@ -100,6 +103,8 @@ export default function MapBackground() {
     const handleSelection = (coordinates : number[]) => {
         map.flyTo({center: coordinates, zoom: 18});
     }
+
+    const points_url = `MeterPoints.pmtiles`;
 
     return(
         <>
@@ -138,11 +143,10 @@ export default function MapBackground() {
                                     <img src={'../assets/water-icon.svg'} alt="water icon" width="16" height="16" />
                                     <p className="uk-h4 text-secondary">{popup.properties[variable+billingPeriod]} KGal</p>
                                 </div>
-                                <p className="text-primary mb-1"><b>{popup.Address}</b></p>
-                                <p><b>Bill: </b>{popup.Bill}</p>
-                                <p><b>Use Code: </b>{popup.PropertyType}</p>
-                                <p><b>Category: </b>{popup.PropertyCat}</p>
-                                <p><b>Location Code: </b>{popup.LocationCode}</p>
+                                <p className="text-primary leading-tight mt-1"><b>{popup.Address}</b></p>
+                                <p className = "mb-1"><b>{variable} • Bill {billingPeriod}</b></p>
+                                {popup.PropertyType && popup.PropertyCat && <p className = "leading-tight">{popup.PropertyType} • {popup.PropertyCat}</p>}
+                                <p className = "leading-tight">Location Code: {popup.LocationCode}</p>
                             </div>
                         </Popup>
                     )}
@@ -182,6 +186,32 @@ export default function MapBackground() {
                     }
 
                     <ParcelLayers billingPeriod={billingPeriod} variable={variable}/>
+
+                    <Source
+                        id="meter-points"
+                        type="vector"
+                        url={`pmtiles://${points_url}`}
+                    >
+                        <Layer
+                            id="meter-points-layer"
+                            type="circle"
+                            source="meter-points"
+                            source-layer="OviedoWaterWide"
+                            layout={{ visibility: meterLayer ? 'visible' : 'none' }}
+                            paint={{
+                                'circle-radius': [
+                                    'interpolate', ['linear'], ['zoom'],
+                                    10, 0.5, // at zoom 10 do radius 2
+                                    14, 2,
+                                    18, 6
+                                ],
+                                'circle-color': '#FFFFFF',
+                                'circle-stroke-width': 1,
+                                'circle-stroke-color': '#000000',
+                                'circle-opacity': 0.6,
+                            }}
+                        />
+                    </Source>
 
                 </Map>
             </div>
