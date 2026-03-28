@@ -4,6 +4,7 @@
 #include "./Crow/include/crow.h"
 #include "GeoJSONHeapWrapper.h"
 #include "MinMax.h"
+#include "Deap.h"
 using namespace std;
 using namespace chrono;
 
@@ -77,12 +78,33 @@ int main() {
 
                 response["MaxUsers"] = move(max_users);
             }
-
         }
 
         else if (data_structure == "deap") {
-            // implement DEAP logic here using the same formatParcel() approach
+            //implement Deap logic here using the same approach
+            //make Deap
+            //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
+            GeoJSONHeapWrapper<Deap<json>> heap("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterWide.geojson", billing_period, variable);
 
+            if (method == "Min" || method == "Both") {
+                crow::json::wvalue::list min_users;
+
+                for (int i = 0; i < num; i++) {
+                    min_users.push_back(formatParcel(heap.pop_min(), heap.desired_water_bill));
+                }
+
+                response["MinUsers"] = move(min_users);
+            }
+
+            if (method == "Max" || method == "Both") {
+                crow::json::wvalue::list max_users;
+
+                for (int i = 0; i < num; i++) {
+                    max_users.push_back(formatParcel(heap.pop_max(), heap.desired_water_bill));
+                }
+
+                response["MaxUsers"] = move(max_users);
+            }
         }
 
         else {
