@@ -11,23 +11,26 @@ export default function ReturnedUsers(){
         map.flyTo({center: coordinates, zoom: 18})
     }
 
+    //For making addresses not all-caps:
+    const toTitleCase = (str) => {
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
     return(
         <>
 
             {/* TIME ELAPSED BADGES */}
             {returnJSON &&
                 <>
-                    <h4 className = "uk-h4 text-primary mb-2">Performance</h4>
                     <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[0].Time} sec</span></p>
                     <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[1].Time} sec</span></p>
                     <hr className="uk-hr my-8"/>
                 </>
             }
-
-
-
-            {returnJSON &&
-                <h4 className = "uk-h4 text-primary mb-2">Returned Users</h4>}
 
             {/* PLACEHOLDER MESSAGE */}
             {!returnJSON &&
@@ -52,15 +55,23 @@ export default function ReturnedUsers(){
             {/* LOWEST USERS LISTING */}
             {returnJSON && returnJSON[0].MinUsers && (method === "Min" || method === "Both") &&
                 <>
-                    <h2><b>Lowest {returnJSON[0].Number} Users</b></h2>
+                    <h2><b>Lowest {returnJSON[0].Number} Users:</b></h2>
                     {returnJSON[0].MinUsers.map((user, index )=> (
                         <div className="flex items-center gap-0">
                             <MapMarker color="low" rank={index+1} size={28}/>
                             <div key = {index}
-                                 className = "w-full uk-card uk-card-body my-2 mx-2 py-2 px-3 hover:cursor-[url('/assets/marker-cursor.svg')_16_16,_auto]"
+                                 className = "w-full uk-card uk-card-body my-2 mx-2 py-2 px-3 border border-slate-200 border-l-4 border-l-[#4145AB] pl-4 hover:cursor-[url('/assets/marker-cursor.svg')_16_16,_auto]"
                                  onClick = {()=>{handleSelection(user.Coordinates)}}
                             >
-                                <b>{user.Address}</b> | {user.Consump} kGal
+                                <div className="flex flex-col gap-0.5">
+                                    <p className="text-xl text-[#4145AB] font-bold tracking-tight">
+                                        {user.Consump.toFixed(2)}
+                                        <span className="text-xs font-medium ml-1 text-muted-foreground uppercase">kGal</span>
+                                    </p>
+                                    <p className="text-sm font-medium text-secondary-foreground/80">
+                                        {toTitleCase(user.Address)}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -71,15 +82,23 @@ export default function ReturnedUsers(){
             {returnJSON && returnJSON[0].MaxUsers && (method === "Max" || method === "Both") &&
                 <>
                     <br/>
-                    <h2><b>Highest {returnJSON[0].Number} Users</b></h2>
+                    <h2><b>Highest {returnJSON[0].Number} Users:</b></h2>
                     {returnJSON[0].MaxUsers.map((user, index )=> (
                         <div className="flex items-center gap-0">
                             <MapMarker color="high" rank={index+1} size={28}/>
                             <div key = {index}
-                                 className = "w-full uk-card uk-card-body my-2 mx-2 py-2 px-3 hover:cursor-[url('/assets/marker-cursor.svg')_16_16,_auto]"
+                                 className = "w-full uk-card uk-card-body my-2 mx-2 py-2 px-3 border border-slate-200 border-l-4 border-l-[#7A0403] pl-4 hover:cursor-[url('/assets/marker-cursor.svg')_16_16,_auto]"
                                  onClick = {()=>{handleSelection(user.Coordinates)}}
                             >
-                                <b>{user.Address}</b> | {user.Consump} kGal
+                                <div className="flex flex-col gap-0.5">
+                                    <p className="text-xl text-[#7A0403] font-bold tracking-tight">
+                                        {user.Consump.toFixed(2)}
+                                        <span className="text-xs font-medium ml-1 text-muted-foreground uppercase">kGal</span>
+                                    </p>
+                                    <p className="text-sm font-medium text-secondary-foreground/80">
+                                        {toTitleCase(user.Address)}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     ))}

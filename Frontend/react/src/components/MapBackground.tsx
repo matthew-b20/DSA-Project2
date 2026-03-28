@@ -141,7 +141,7 @@ export default function MapBackground() {
                             <div>
                                 <div className="flex items-center gap-1 pr-2">
                                     <img src={'../assets/water-icon.svg'} alt="water icon" width="16" height="16" />
-                                    <p className="uk-h4 text-secondary">{popup.properties[variable+billingPeriod]} KGal</p>
+                                    <p className="uk-h4 text-secondary">{popup.properties[variable+billingPeriod].toFixed(2)} KGal</p>
                                 </div>
                                 <p className="text-primary leading-tight mt-1"><b>{popup.Address}</b></p>
                                 <p className = "mb-1"><b>{variable} • Bill {billingPeriod}</b></p>
