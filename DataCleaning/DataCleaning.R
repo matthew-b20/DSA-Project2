@@ -1,193 +1,225 @@
-#---------------------------------------
-#INITIAL DATA CLEANING & GDB->GeoJSON
-#---------------------------------------
+library(tidyverse)
+library(magrittr)
+library(sf)
+library(readxl)
 
-#I do not claim to write quality R code. But it works :)
+# LOAD DATA
+raw <- st_read("RawData/WaterConsumption.gdb", layer = "ConsumptionJanSept2025")
+prop_codes <- read_excel("RawData/PropertyUseCode.xlsx") %>%
+  rename(PropertyType = Code, PropertyDesc = Description)
 
-require(tidyverse)
-require(magrittr)
-require(sf) #for .gdb file
-require(readxl) #for Excel file
+# RENAME, FORMAT, JOIN
+cleaned <- raw %>%
+  rename(
+    Juris = JURIS,
+    ReadOn = READ_ON,
+    Consump = CONSUMP,
+    MeterSize = SIZE,
+    WaterType = UTTMS,
+    CustomerCode = CUSID,
+    LocationCode = LOCID,
+    Address = ADDRESS,
+    Misc = MISC,
+    PropertyType = TYPE,
+    InOut = IN_OUT,
+    SubdivisionCode = SUBDIVISIONS
+  ) %>%
+  mutate(
+    ReadOn = ymd(ReadOn),
+    Cycle = substr(CYCLE_RTE, 1, 1),
+    Route = substr(CYCLE_RTE, nchar(CYCLE_RTE), nchar(CYCLE_RTE)),
+    WaterType = case_when(
+      WaterType == "RW" ~ "Reclaimed",
+      WaterType == "WA" ~ "Potable",
+      TRUE ~ WaterType
+    ),
+    PropertyCat = case_when(
+      PropertyType %in% c("ALF","APTS","DUP","1","RM","SFR","TH","901","15VR") ~ "Residential",
+      PropertyType %in% c("10-A","10-B","10-C","10-D","10-E","10-I","10-M","15VC") ~ "Commercial",
+      PropertyType %in% c("10-P","P","SCH") ~ "Public",
+      PropertyType %in% c("99") ~ "Shell",
+      TRUE ~ "Miscellaneous"
+    )
+  ) %>%
+  dplyr::select(-CYCLE_RTE) %>%
+  # join the description lookup on PropertyType = Code
+  left_join(prop_codes, by = "PropertyType") %>%
+  relocate(PropertyDesc, .after = PropertyCat) %>%
+  relocate(Cycle, Route, .after = MeterSize)
 
-#LOAD IN WATER CONSUMPTION DATA
-gdb_path <- "WaterConsumption.gdb"
-#st_layers(gdb_path) #view layers
-consump_all <- st_read(gdb_path, layer = "ConsumptionJanSept2025") #load in desired layer
-
-#FORMAT DATA
-consump_all %<>% mutate(READ_ON = ymd(READ_ON))
-consump_all %<>% mutate(PropertyCat = case_when(TYPE %in% c("ALF", "APTS","DUP","1","RM","SFR","TH","901","15VR") ~ "Residential",
-                                                TYPE %in% c("10-A", "10-B", "10-C", "10-D", "10-E", "10-I", "10-M", "15VC") ~ "Commercial",
-                                                TYPE %in% c("10-P", "P", "SCH") ~ "Public",
-                                                TYPE %in% c("99") ~ "Shell",
-                                                TRUE ~ "Miscellaneous")) %>% relocate(PropertyCat, .after = TYPE)
-
-#Separate CYCLE_RTE into distinct "Cycle" & "Route" columns
-consump_all %<>% mutate(Cycle = substr(CYCLE_RTE, 1, 1), Route = substr(CYCLE_RTE, nchar(CYCLE_RTE), nchar(CYCLE_RTE)))
-consump_all %<>% relocate(Cycle, .after = CYCLE_RTE) %>% relocate(Route, .after = Cycle) %>% dplyr::select(-CYCLE_RTE) #it didn't want to work w/o "dyplr::" for whatever reason
-
-#Rename other columns
-consump_all %<>% rename(Juris= JURIS,
-                        ReadOn = READ_ON,
-                        Consump = CONSUMP,
-                        MeterSize = SIZE,
-                        WaterType = UTTMS,
-                        CustomerCode = CUSID,
-                        LocationCode = LOCID,
-                        Address = ADDRESS,
-                        Misc = MISC,
-                        PropertyType = TYPE,
-                        InOut = IN_OUT,
-                        SubdivisionCode = SUBDIVISIONS)
-
-#Mutate WaterType column values
-consump_all %<>% mutate(WaterType = case_when(WaterType == "RW" ~ "Reclaimed", WaterType == "WA" ~ "Potable"))
-
-#DATA FORMATTING
-#Remove duplicate rows
-consump_all_cleaned <- consump_all %>%
+# DEDUPLICATION
+# "Duplicate" = same LocationCode + ReadOn + WaterType; keep the max Consump is the deduplication logic
+cleaned <- cleaned %>%
   group_by(LocationCode, ReadOn, WaterType) %>%
-  slice(1) %>%  #Take first row of each group, because all the values ~should~ be the same anyways
-  mutate(Consump = max(Consump, na.rm = TRUE)) %>%  #override Consump b/c some of the Consump values aren't the same (even though they should be)
-  ungroup()
+  mutate(Consump = max(Consump, na.rm = TRUE)) %>%
+  slice(1) %>%
+  ungroup() %>%
+  mutate(Consump = pmax(Consump, 0)) # recode negatives to 0 pmax() just finds the max out of two vectors
 
-consump_all_cleaned %<>% mutate(Consump = case_when(Consump < 0 ~ 0, Consump >= 0 ~ Consump)) #recode negative values as 0's
+# SPLIT BY WATER TYPE & ASSIGN BILLING PERIOD
+# billing period decided by order b/c there's no better way
+assign_bills <- function(df) {
+  df %>%
+    group_by(LocationCode) %>%
+    arrange(ReadOn, .by_group = TRUE) %>%
+    mutate(Bill = row_number()) %>%
+    filter(Bill <= 9) %>%
+    ungroup()
+}
 
+potable   <- cleaned %>% filter(WaterType == "Potable")   %>% assign_bills()
+reclaimed <- cleaned %>% filter(WaterType == "Reclaimed") %>% assign_bills()
 
-#Separate Reclaimed & Potable Usage
-potable_consump <- consump_all_cleaned %>% filter(WaterType == "Potable")
-reclaimed_consump <- consump_all_cleaned %>% filter(WaterType == "Reclaimed")
+# BUILD COMBINED (Potable + Reclaimed) PER LOCATION + BILL
+# Full join so locations with only one type still appear
+combined_long <- potable %>%
+  st_drop_geometry() %>%
+  dplyr::select(LocationCode, Bill, Consump) %>%
+  full_join(
+    reclaimed %>% st_drop_geometry() %>% dplyr::select(LocationCode, Bill, Consump),
+    by     = c("LocationCode", "Bill"),
+    suffix = c("_p", "_r")
+  ) %>%
+  mutate(
+    Consump   = coalesce(Consump_p, 0) + coalesce(Consump_r, 0),
+    WaterType = "Combined"
+  ) %>%
+  dplyr::select(LocationCode, Bill, Consump, WaterType)
 
-#Create "Bill" column for both
-potable_consump %<>% group_by(LocationCode) %>%
-  arrange(ReadOn) %>%
-  mutate(Bill = row_number()) %>% #this wasn't working prior to removing duplicate rows
-  filter(Bill <= 9) %>% #restrict to <=9 because very few properties have October data
-  ungroup()
+# OUTPUT 1 -- SEARCHBAR GeoJSON (Address + LocationCode + point)
+searchbar <- cleaned %>%
+  distinct(LocationCode, .keep_all = TRUE) %>%
+  dplyr::select(Address, LocationCode) %>%
+  st_transform(crs = 4326)
 
-reclaimed_consump %<>% group_by(LocationCode) %>%
-  arrange(ReadOn) %>%
-  mutate(Bill = row_number()) %>%
-  filter(Bill <= 9) %>%
-  ungroup()
+st_write(searchbar, "CleanedData/OviedoWaterSearchbar.geojson",
+         driver = "GeoJSON", delete_dsn = TRUE)
 
-#Pivot Wider for both Potable & Reclaimed datasets
-#Must drop geometry (and remove Shape from id_cols) before pivoting wider
-potable_consump_wide <- potable_consump %>% st_drop_geometry() %>% 
-  pivot_wider(
-    id_cols = c(LocationCode, Juris, Route, Cycle, MeterSize, CustomerCode,
-                Address, Misc, PropertyType, PropertyCat, InOut, SubdivisionCode), #need to drop ReadOn or else it can't collapse all locations into one row
-    names_from = Bill,
-    values_from = Consump,
-    names_glue = "Consump{Bill}"
-  )
-
-#Must drop geometry (and remove Shape from id_cols) before pivoting wider
-reclaimed_consump_wide <- reclaimed_consump %>% st_drop_geometry() %>% 
-  pivot_wider(
-    id_cols = c(LocationCode, Juris, Route, Cycle, MeterSize, CustomerCode,
-                Address, Misc, PropertyType, PropertyCat, InOut, SubdivisionCode), #need to drop ReadOn or else it can't collapse all locations into one row
-    names_from = Bill,
-    values_from = Consump,
-    names_glue = "Consump{Bill}"
-  )
-
-
-#Combine Potable & Reclaimed Data (can't use original consump_all b/c that doesn't have a "Bill" column)
-total_consump <- bind_rows(potable_consump, reclaimed_consump)
-total_consump_wide <- bind_rows(potable_consump_wide, reclaimed_consump_wide)
-
-#Sum the potable & reclaimed usage data together
-total_consump_wide <- total_consump_wide %>% group_by(LocationCode) %>% summarize(
-  across(starts_with("Consump"), ~ sum(.x, na.rm = TRUE)),
-  across(everything(), ~first(.x)),
-  .groups = "drop"
+# OUTPUT 2 -- LONG CSV (all three water types, all attributes, no geometry)
+long_all <- bind_rows(
+  potable   %>% st_drop_geometry(),
+  reclaimed %>% st_drop_geometry(),
+  # combined doesn't carry static attrs; join them back from potable or reclaimed
+  combined_long %>%
+    left_join(
+      cleaned %>%
+        st_drop_geometry() %>%
+        distinct(LocationCode, .keep_all = TRUE) %>%
+        dplyr::select(-ReadOn, -Consump, -WaterType),
+      by = "LocationCode"
+    )
 )
 
-#transform to WGS84 (required for mapping in maplibre/web -- VERY IMPORTANT)
-total_consump <- st_transform(total_consump, crs = 4326)
-search_bar_data <- total_consump %>% select(Address, LocationCode) %>% distinct()
+write.csv(long_all, "CleanedData/OviedoWaterLong.csv", row.names = FALSE)
 
-#write to geoJSON
-#sf::st_write(total_consump, dsn = "OviedoWaterJSON.geojson", driver = "GeoJSON")
-#sf::st_write(search_bar_data, dsn = "OviedoWaterSearchbar.geojson", driver = "GeoJSON")
+# OUTPUT 3 -- WIDE GeoJSON
+# Columns made as Potable1, Reclaimed1, Combined1, Potable2, and so on
+static_cols <- c("LocationCode","Juris","Route","Cycle","MeterSize","CustomerCode",
+                 "Address","Misc","PropertyType","PropertyCat","PropertyDesc",
+                 "InOut","SubdivisionCode")
 
+# helper: pivot one water-type df to wide, keeping static cols
+pivot_type <- function(df, prefix) {
+  df %>%
+    st_drop_geometry() %>%
+    pivot_wider(
+      id_cols     = LocationCode,
+      names_from  = Bill,
+      values_from = Consump,
+      names_glue  = paste0(prefix, "{Bill}")
+    )
+}
 
-#---------------------------------------
-#PARCELS & Shapefile->GeoJSON
-#---------------------------------------
+potable_wide <- pivot_type(potable, "Potable")
+reclaimed_wide <- pivot_type(reclaimed, "Reclaimed")
+combined_wide <- pivot_type(combined_long, "Combined")
 
-parcels_path <- "Parcels.gdb"
+# add per-type averages (rowMeans respects NA)
+add_avg <- function(df, prefix) {
+  cols <- paste0(prefix, 1:9)
+  existing <- cols[cols %in% names(df)]
+  df %>%
+    mutate(across(all_of(existing), as.numeric)) %>%
+    mutate(!!paste0(prefix, "Avg") := rowMeans(across(all_of(existing)), na.rm = TRUE))
+}
 
-#VIEW LAYERS
-# st_layers(gdb_path)
-# st_layers(parcels_path)
-# st_layers(limits_path)
+potable_wide   <- add_avg(potable_wide,   "Potable")
+reclaimed_wide <- add_avg(reclaimed_wide, "Reclaimed")
+combined_wide  <- add_avg(combined_wide,  "Combined")
 
-#Re-add geometry back in so that the maps work right
-original_points <- consump_all_cleaned %>% select(LocationCode, Shape)
+# join all three together; potable carries the static attrs
+all_locations <- cleaned %>%
+  st_drop_geometry() %>%
+  distinct(LocationCode, .keep_all = TRUE) %>%
+  dplyr::select(all_of(static_cols))
 
-potable_consump_wide <- potable_consump_wide %>%
-  left_join(original_points, by = "LocationCode")
+wide_all <- all_locations %>%
+  left_join(potable_wide   %>% dplyr::select(LocationCode, starts_with("Potable")),   by = "LocationCode") %>%
+  left_join(reclaimed_wide %>% dplyr::select(LocationCode, starts_with("Reclaimed")), by = "LocationCode") %>%
+  left_join(combined_wide  %>% dplyr::select(LocationCode, starts_with("Combined")),  by = "LocationCode")
 
+# reorder the columns more nicely: static attributes | Potable1, Reclaimed1, Combined1, Potable2, ... | averages
+interleaved <- map(1:9, ~ paste0(c("Potable","Reclaimed","Combined"), .x)) %>%
+  unlist() %>%
+  .[. %in% names(wide_all)]      # drop any that don't exist (e.g. if <9 bills)
 
-reclaimed_consump_wide <- reclaimed_consump_wide %>%
-  left_join(original_points, by = "LocationCode")
+avg_cols <- c("PotableAvg","ReclaimedAvg","CombinedAvg") %>% .[. %in% names(wide_all)]
 
-total_consump_wide <- total_consump_wide %>%
-  left_join(original_points, by = "LocationCode")
+wide_all <- wide_all %>%
+  dplyr::select(all_of(static_cols), all_of(interleaved), all_of(avg_cols))
 
-#need to use wide tables or else spatial merge won't work properly
-consump_pts_total <- st_as_sf(total_consump_wide)
-consump_pts_potable <- st_as_sf(potable_consump_wide)
-consump_pts_reclaimed <- st_as_sf(reclaimed_consump_wide)
-parcels_vector <- st_read(parcels_path, layer = "Parcels")
+consump_cols <- c(paste0(rep(c("Potable","Reclaimed","Combined"), each = 9), 1:9),
+                  "PotableAvg","ReclaimedAvg","CombinedAvg") %>%
+  .[. %in% names(wide_all)]
 
-#add a column for avg thus far
-#since some data points are missing a billing cycle, rowMeans() will ignore the NA's and properly average
-consump_cols <- paste0("Consump", 1:9)
+wide_all <- wide_all %>%
+  mutate(across(all_of(consump_cols), ~ replace_na(.x, -1)))
 
-consump_pts_total %<>% mutate(across(all_of(consump_cols), ~ as.numeric(as.character(.))))
-consump_pts_reclaimed %<>% mutate(across(all_of(consump_cols), ~ as.numeric(as.character(.))))
-consump_pts_potable %<>% mutate(across(all_of(consump_cols), ~ as.numeric(as.character(.))))
+# attach point geometry (one point per LocationCode, WGS84)
+geom_lookup <- cleaned %>%
+  distinct(LocationCode, .keep_all = TRUE) %>%
+  dplyr::select(LocationCode) %>%
+  st_transform(crs = 4326) # WGS84 needed for mapping
 
-consump_pts_total %<>%
-  rowwise() %>%                                   #go row by row?? cuz it's not cooperating
-  mutate(ConsumpAvg = mean(c_across(all_of(consump_cols)), na.rm = TRUE)) %>%
-  ungroup()
-consump_pts_reclaimed %<>%
-  rowwise() %>%                                   #go row by row?? cuz it's not cooperating
-  mutate(ConsumpAvg = mean(c_across(all_of(consump_cols)), na.rm = TRUE)) %>%
-  ungroup()
-consump_pts_potable %<>%
-  rowwise() %>%                                   #go row by row?? cuz it's not cooperating
-  mutate(ConsumpAvg = mean(c_across(all_of(consump_cols)), na.rm = TRUE)) %>%
-  ungroup()
+wide_sf <- geom_lookup %>%
+  left_join(wide_all, by = "LocationCode")
 
-#apparently curved geometry types are not supported...
-#st_geometry_type(parcels_vector)
-parcels_vector <- parcels_vector %>% st_cast("MULTIPOLYGON") #approximate curve shape with straight lines
-#st_geometry_type(parcels_vector) double-check it worked
+st_write(wide_sf, "CleanedData/OviedoWaterWide.geojson",
+         driver = "GeoJSON", delete_dsn = TRUE)
 
-#do the spatial join
-total_parcels <- st_join(parcels_vector, consump_pts_total, join = st_contains)
-potable_parcels <- st_join(parcels_vector, consump_pts_potable, join = st_contains)
-reclaimed_parcels <- st_join(parcels_vector, consump_pts_reclaimed, join = st_contains)
+parcels <- st_read("RawData/Parcels.gdb", layer = "Parcels") %>%
+  st_cast("MULTIPOLYGON") %>%
+  st_make_valid() %>%
+  st_transform(crs = 4326)
 
-#remove parcels that did not contain a point
-#(since my parcels layer contains parcels for all of Seminole County I don't want all the parcels;
-#I also don't want parcels that are just random properties/land not hooked up to water)
-total_parcels %<>% filter(!is.na(LocationCode))
-potable_parcels %<>% filter(!is.na(LocationCode))
-reclaimed_parcels %<>% filter(!is.na(LocationCode))
+consump_cols_all <- names(wide_sf)[str_detect(names(wide_sf), "^(Potable|Reclaimed|Combined)")]
+parcels <- st_read("RawData/Parcels.gdb", layer = "Parcels") %>%
+  st_cast("MULTIPOLYGON") %>%
+  st_make_valid() %>%
+  st_transform(crs = 4326)
 
-#transform to WGS84 (required for mapping in maplibre/web -- VERY IMPORTANT)
-total_parcels %<>% st_transform(crs = 4326)
-#Didn't actually end up using these:
-potable_parcels %<>% st_transform(crs = 4326)
-reclaimed_parcels %<>% st_transform(crs = 4326)
+consump_cols_all <- names(wide_sf)[str_detect(names(wide_sf), "^(Potable|Reclaimed|Combined)")]
+static_cols_all <- names(wide_sf)[!names(wide_sf) %in% c(consump_cols_all, attr(wide_sf, "sf_column"))]
 
-#get JUST the parcels ID-ed by address and location code (all other info will be joined in the backend somehow)
-#write to geoJSON
-#total_parcels %<>% select(Address, LocationCode, Shape) %>% distinct(Address, LocationCode)
-sf::st_write(total_parcels, dsn = "TotalParcelsWGS.geojson", driver = "GeoJSON")
+parcels <- parcels %>% mutate(.parcel_idx = row_number())
+
+points_tagged <- st_join(wide_sf, parcels %>% dplyr::select(.parcel_idx),
+                         join = st_within, left = FALSE)
+
+parcel_consump <- points_tagged %>%
+  st_drop_geometry() %>%
+  group_by(.parcel_idx) %>%
+  summarise(
+    across(all_of(static_cols_all), ~ first(na.omit(.x))),
+    across(all_of(consump_cols_all), ~ sum(.x, na.rm = TRUE)),
+    n_meters = n(),
+    .groups = "drop"
+  )
+
+parcel_sf <- parcels %>%
+  inner_join(parcel_consump, by = ".parcel_idx") %>%
+  dplyr::select(-.parcel_idx) %>%
+  mutate(across(all_of(consump_cols[consump_cols %in% names(.)]), ~ replace_na(.x, -1)))
+
+st_write(parcel_sf, "CleanedData/OviedoParcels.geojson",
+         driver = "GeoJSON", delete_dsn = TRUE)

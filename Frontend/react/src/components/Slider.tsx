@@ -5,8 +5,17 @@ export default function Slider() {
     const { billingPeriod, setBillingPeriod } = useContext(MapContext) as MapContextType;
 
     return(
-        <label className="block" htmlFor="Billing period slider"><b>Billing period: </b>
-            <span className="uk-badge">{billingPeriod}</span>
+        <label className="block" htmlFor="Billing period slider">
+            <div className="flex items-center gap-1">
+                {/*
+                <a href="#bill-info-modal" data-uk-toggle="target: #bill-info-modal">
+                    <img src="../assets/info.png" alt="Number of properties info" width="16" height="16"/>
+                </a>
+                */}
+                <b>2025 Billing period: </b>
+                <span className="uk-badge">{billingPeriod}</span>
+            </div>
+
             <input
                 id="Billing period slider"
                 type="range"

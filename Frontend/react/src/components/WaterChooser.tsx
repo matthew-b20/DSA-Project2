@@ -5,7 +5,15 @@ export default function WaterChooser(){
     const { variable: waterType, setVariable: setWaterType } = useContext(MapContext) as MapContextType;
 
     return(
-        <label className="block" htmlFor="Water Chooser"><b>Water type:</b>
+        <label className="block" htmlFor="Water Chooser">
+            <div className="flex items-center gap-2">
+                {/*
+                <a href="#bill-info-modal" data-uk-toggle="target: #bill-info-modal">
+                    <img src="../assets/info.png" alt="Number of properties info" width="16" height="16"/>
+                </a>
+                */}
+                <b>Water type: </b>
+            </div>
 
             <label className="block">
                 <input className="uk-radio mr-2"
