@@ -1,3 +1,4 @@
+
 #pragma once
 #include <cmath>
 #include <stdexcept>
@@ -186,7 +187,7 @@ private:
                 if (left_child < size() && is_in_min_heap(left_child) && heap_array[left_child] < heap_array[target]) {
                     target = left_child;
                 }
-                if (right_child < size() && is_in_min_heap(right_child) && heap_array[right_child] < heap_array[target]) {
+                if (right_child < size()&& is_in_min_heap(right_child) && heap_array[right_child] < heap_array[target]) {
                     target = right_child;
                 }
             } else {
@@ -271,7 +272,7 @@ public:
     }
 
     // Insert a node with - priority
-    void insert(Node node, int priority) {
+    void add_node(Node node, int priority) {
         Entry entry;
         entry.priority = priority;
         entry.insertion_place = insert_count++;
@@ -280,7 +281,7 @@ public:
     }
 
     // Remove + return the node with the LOWEST priority
-    Node deleteMin() {
+    Node pop_min_node() {
         if (count() == 0) {
             // Stop program - can comment out if needed
             throw out_of_range("Heap is empty");
@@ -290,7 +291,7 @@ public:
     }
 
     // Remove + return the node with the HIGHEST priority
-    Node deleteMax() {
+    Node pop_max_node() {
         if (count() == 0) {
             // Stop program - can comment out if needed
             throw out_of_range("Heap is empty");
@@ -302,7 +303,7 @@ public:
     }
 
     // Node with the LOWEST priority without removing it
-    Node getMin() const {
+    Node peek_min_node() const {
         if (count() == 0) {
             // Stop program - can comment out if needed
             throw out_of_range("Heap is empty");
@@ -311,7 +312,7 @@ public:
     }
 
     // Node with the HIGHEST priority without removing it
-    Node getMax() const {
+    Node peek_max_node() const {
         if (count() == 0) {
             // Stop program can comment out if needed
             throw out_of_range("Heap is empty");
@@ -330,11 +331,11 @@ public:
         insert_count = 0;
     }
 
-    bool isEmpty() const {
+    bool is_empty() const {
         return count() == 0;
     }
 
-    int getSize() const {
+    int num_nodes() const {
         return count();
     }
 };
