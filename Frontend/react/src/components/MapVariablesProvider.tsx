@@ -19,10 +19,14 @@ interface ReturnJSON{
 }
 
 interface popupInfo {
+    type: string;
     lngLat: maplibregl.LngLat;
-    Address: string
-    LocationCode: string
-    consump_period: string
+    Address: string;
+    LocationCode: string;
+    PropertyType: string;
+    PropertyCat: string;
+    properties: string[];
+    Bill: number;
 }
 
 export interface MapContextType {
@@ -46,6 +50,21 @@ export interface MapContextType {
 
     returnJSON: ReturnJSON[]
     setReturnJSON: (val: ReturnJSON[]) => void;
+
+    parcelLayer: boolean;
+    setParcelLayer: (val: boolean) => void;
+
+    meterLayer: boolean;
+    setMeterLayer: (val: boolean) => void;
+
+    excludeZeroes: boolean;
+    setExcludeZeroes: (val: boolean) => void;
+
+    propertyCat: string;
+    setPropertyCat: (val: string) => void;
+
+    subdiv: string;
+    setSubdiv: (val: string) => void;
 }
 
 export const MapContext = createContext<MapContextType | null>(null);
@@ -58,6 +77,11 @@ export default function MapVariablesProvider({children} : {children: React.React
     const [style, setStyle] = useState(true);
     const [popup, setPopup] = useState<popupInfo | null>(null);
     const [returnJSON, setReturnJSON] = useState<ReturnJSON[] | null>(null);
+    const [parcelLayer, setParcelLayer] = useState<boolean>(true);
+    const [meterLayer, setMeterLayer] = useState<boolean>(true);
+    const [excludeZeroes, setExcludeZeroes] = useState<boolean>(true);
+    const [propertyCat, setPropertyCat] = useState<string>("All");
+    const [subdiv, setSubdiv] = useState<string>("All");
 
     return(
         <MapContext.Provider value = {{
@@ -67,7 +91,13 @@ export default function MapVariablesProvider({children} : {children: React.React
             method, setMethod,
             style, setStyle,
             popup, setPopup,
-            returnJSON, setReturnJSON}}
+            returnJSON, setReturnJSON,
+            parcelLayer, setParcelLayer,
+            meterLayer, setMeterLayer,
+            excludeZeroes, setExcludeZeroes,
+            propertyCat, setPropertyCat,
+            subdiv, setSubdiv
+        }}
         >
             {children}
         </MapContext.Provider>
