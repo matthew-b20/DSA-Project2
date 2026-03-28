@@ -36,6 +36,7 @@ export default function NumberChooser() {
                        onBlur={validateNumParcels}
                 />
             </label>
+
             <div id="num-info-modal" className="uk-flex-top" data-uk-modal>
                 <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
                     <p>

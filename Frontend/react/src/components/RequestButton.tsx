@@ -3,12 +3,13 @@ import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import UseAnimations from "react-useanimations";
 import loading from 'react-useanimations/lib/loading';
 
-
 interface RequestButtonProps{
     billing_period: number;
     num: number;
     variable: string;
     method: string;
+    category: string;
+    exclude: boolean
 }
 
 //THIS BUTTON MAKES A REQUEST TO THE CROW SERVER BASED ON THE BASSED IN PROPS
