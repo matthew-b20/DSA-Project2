@@ -76,7 +76,7 @@ function useDebounce(value: number, zoom: number) {
     //making the delay adaptive based on the zoom level
     //b/c zoom level impacts how many parcels need to be rendered
     //& therefore how laggy parcel re-renders are:
-    const delay = 7000/(zoom^2); //somewhat randomly chosen, but seems to work
+    const delay = 7000/(zoom**2); //somewhat randomly chosen, but seems to work
 
     useEffect(() => {
         // set timer to update the debounced value after the delay
@@ -88,12 +88,13 @@ function useDebounce(value: number, zoom: number) {
         return () => {
             clearTimeout(handler);
         };
-    }, [value]); // do the Effect again if the value changes
+    }, [value, delay]); // do the Effect again if the value changes
 
     return debouncedValue;
 }
 
 export default function MapBackground() {
+    const [zoom, setZoom] = useState(12);
     const { map } = useMap();
     const { style, billingPeriod, variable, popup, setPopup, returnJSON, method, meterLayer } = useContext(MapContext) as MapContextType;
 
@@ -102,8 +103,6 @@ export default function MapBackground() {
         maplibregl.addProtocol("pmtiles", protocol.tile);
         return () => {maplibregl.removeProtocol("pmtiles")} //optional (not really optional here) cleanup function so React doesn't get weird
     }, []); //empty dependency array
-
-    const consump_period = variable + billingPeriod;
 
     const handleParcelClick = (e) => {
         const parcel = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens
@@ -143,6 +142,7 @@ export default function MapBackground() {
                     latitude: 28.67,
                     zoom: 12,
                 }}
+                onMove={(e) => setZoom(e.viewState.zoom)}
                 className="w-full h-full"
                 mapStyle={basicStyle}
                 maxZoom={19} // do not make smaller -- will result in grey squares if map is zoomed beyond available resolution
@@ -209,7 +209,7 @@ export default function MapBackground() {
                         </>
                     }
 
-                    <ParcelLayers billingPeriod={useDebounce(billingPeriod, map.getZoom())} variable={variable}/>
+                    <ParcelLayers billingPeriod={useDebounce(billingPeriod, zoom)} variable={variable}/>
 
                     <Source
                         id="meter-points"

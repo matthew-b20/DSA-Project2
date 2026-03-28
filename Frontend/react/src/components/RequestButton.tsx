@@ -22,8 +22,8 @@ export default function RequestButton({billing_period, num, variable, method, ca
     const [isLoading, setLoading] = useState(false);
 
     const makeRequest = async () => {
-        const min_max_endpoint = `/api/minmax/${billing_period}/${num}/${variable}/${method}/${category}/${exclude}`; //Crow server url
-        const deap_endpoint = `/api/deap/${billing_period}/${num}/${variable}/${method}/${category}/${exclude}`;
+        const min_max_endpoint = `/api/minmax/${billing_period}/${num}/${variable}/${method}/${category}/${Number(exclude)}`; //Crow server url
+        const deap_endpoint = `/api/deap/${billing_period}/${num}/${variable}/${method}/${category}/${Number(exclude)}`;
         
         try{
             setLoading(true);

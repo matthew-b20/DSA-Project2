@@ -26,8 +26,8 @@ export default function ReturnedUsers(){
             {/* TIME ELAPSED BADGES */}
             {returnJSON &&
                 <>
-                    <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[0].Time} sec</span></p>
-                    <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[1].Time} sec</span></p>
+                    <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[0].Time/1000} sec</span></p>
+                    <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[1].Time/1000} sec</span></p>
                     <hr className="uk-hr my-8"/>
                 </>
             }
@@ -55,7 +55,10 @@ export default function ReturnedUsers(){
             {/* LOWEST USERS LISTING */}
             {returnJSON && returnJSON[0].MinUsers && (method === "Min" || method === "Both") &&
                 <>
-                    <h2><b>Lowest {returnJSON[0].Number} Users:</b></h2>
+                    <h2><b>Lowest {returnJSON[0].Number} Users</b></h2>
+                    <span className="text-s font-medium text-muted-foreground uppercase">
+                        Bill {returnJSON[0].BillingPeriod}: {returnJSON[0].VariableOfInterest} Usage
+                    </span>
                     {returnJSON[0].MinUsers.map((user, index )=> (
                         <div className="flex items-center gap-0">
                             <MapMarker color="low" rank={index+1} size={28}/>
@@ -82,7 +85,10 @@ export default function ReturnedUsers(){
             {returnJSON && returnJSON[0].MaxUsers && (method === "Max" || method === "Both") &&
                 <>
                     <br/>
-                    <h2><b>Highest {returnJSON[0].Number} Users:</b></h2>
+                    <h2><b>Highest {returnJSON[0].Number} Users</b></h2>
+                    <span className="text-s font-medium text-muted-foreground uppercase">
+                        Bill {returnJSON[0].BillingPeriod}: {returnJSON[0].VariableOfInterest} Usage
+                    </span>
                     {returnJSON[0].MaxUsers.map((user, index )=> (
                         <div className="flex items-center gap-0">
                             <MapMarker color="high" rank={index+1} size={28}/>

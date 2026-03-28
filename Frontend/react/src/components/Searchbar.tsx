@@ -43,7 +43,6 @@ export default function Searchbar(){
                     filter: ['==', 'LocationCode', feature.properties.LocationCode]
                 })
 
-            const consump_period = "Consump" + billingPeriod;
             const [lng, lat] = feature.geometry.coordinates
 
             setPopup({
@@ -82,11 +81,11 @@ export default function Searchbar(){
             {showList &&
                 (
                     <ul className = "uk-card uk-card-default absolute mt-2 w-full overflow-hidden rounded-md border bg-white z-500">
-                        {suggestions.map((feature, index)=> (
+                        {suggestions.map((feature : any, index :number)=> (
                             <div className = "my-2 mx-2">
                                 <li
                                     key = {index}
-                                    className="p-3 py-2 uk-list-item hover:bg-primary rounded-md cursor-pointer text-sm z-500"
+                                    className="p-3 py-1 uk-list-item hover:bg-primary rounded-md cursor-pointer text-sm z-500"
                                     onMouseDown={()=>handleSelection(feature)}>
                                     <b>{feature.properties.Address}</b> | Location Code: {feature.properties.LocationCode}
                                 </li>

@@ -1,8 +1,8 @@
-import { useState, useContext } from 'react';
+import { useContext } from 'react';
 import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 
 export default function NumberChooser() {
-    const { propertyCat, setPropertyCat } = useContext(MapContext) as MapContextType; //this line is unhappy without the "as MapContextType"
+    const { setPropertyCat } = useContext(MapContext) as MapContextType; //this line is unhappy without the "as MapContextType"
 
     return(
         <>
