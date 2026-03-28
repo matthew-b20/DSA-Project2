@@ -6,7 +6,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useState, useContext, useEffect } from 'react';
 import * as pmtiles from 'pmtiles';
 
-
 const basicStyle = "https://tiles.openfreemap.org/styles/liberty";
 
 const ParcelLayers = ({billingPeriod, variable}:{billingPeriod: number, variable: string}) =>{
@@ -93,7 +92,7 @@ function useDebounce(value: number, zoom: number) {
 }
 
 export default function MapBackground() {
-    const [zoom, setZoom] = useState(12);
+    const [zoom, setZoom] = useState(13);
     const { map } = useMap();
     const { style, billingPeriod, variable, popup, setPopup, returnJSON, method, meterLayer } = useContext(MapContext) as MapContextType;
     const consump_period = variable + billingPeriod;
@@ -154,9 +153,9 @@ export default function MapBackground() {
                 interactiveLayerIds={['parcel-fills', 'meter-points-layer']}
                 onClick={handleParcelOrPointClick}
                 initialViewState={{
-                    longitude: -81.2,
-                    latitude: 28.67,
-                    zoom: 12,
+                    longitude: -81.1814,
+                    latitude: 28.66,
+                    zoom: 13,
                 }}
                 onMove={(e) => setZoom(e.viewState.zoom)}
                 className="w-full h-full"
@@ -186,7 +185,7 @@ export default function MapBackground() {
                                 <p className="text-primary leading-tight mt-1"><b>{popup.Address}</b></p>
                                 <p className = "mb-1"><b>{variable} • Bill {billingPeriod}</b></p>
                                 { popup.PropertyType && popup.PropertyCat && <p className = "leading-tight">{popup.PropertyType} • {popup.PropertyCat}</p> }
-                                <p>Location Code: {popup.LocationCode}</p>
+                                {popup.type === "point" ? <p>Location Code: {popup.LocationCode}</p> : null}
                                 <span className="uk-badge uk-badge-primary !text-[8px] !min-h-0 px-1.5 py-0 leading-none font-bold uppercase pointer-events-none">
                                     {popup.type === "point" ? "Individual meter" : "Parcel aggregate"}
                                 </span>

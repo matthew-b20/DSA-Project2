@@ -118,7 +118,7 @@ int main() {
 
         // End clock and add the time to the return JSON
         auto end = steady_clock::now();
-        response["Time"] = duration_cast<milliseconds>(end - start).count();
+        response["Time"] = duration_cast<nanoseconds>(end - start).count();
 
         return crow::response(response);
     });
