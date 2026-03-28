@@ -30,8 +30,15 @@ FetchContent_Declare(
         GIT_SHALLOW    TRUE
 )
 
-# Download & configure everything
-FetchContent_MakeAvailable(nlohmann_json asio crow)
+# Download & configure JSON and Asio FIRST (or else Crow won't work)
+FetchContent_MakeAvailable(nlohmann_json asio)
+
+# Force Asio to work if it still doesn't want to
+set(ASIO_INCLUDE_DIR "${asio_SOURCE_DIR}/asio/include" CACHE PATH "" FORCE)
+include_directories(${ASIO_INCLUDE_DIR})
+
+# Configure Crow
+FetchContent_MakeAvailable(crow)
 
 # Asio
 add_library(asio_headers INTERFACE)
@@ -43,17 +50,37 @@ target_compile_definitions(asio_headers INTERFACE
         ASIO_ENABLE_OLD_SERVICES
 )
 
-# Executable
+# Regular executable
 add_executable(OWA_DSA
         DSAProject2/Backend/main.cpp
         DSAProject2/Backend/MinMax.h
         DSAProject2/Backend/Deap.h
         DSAProject2/Backend/HeapWrapper.h
-        DSAProject2/Backend/testing/test.cpp
 )
+
 
 target_link_libraries(OWA_DSA PRIVATE
         nlohmann_json::nlohmann_json
         Crow::Crow
         asio_headers
 )
+
+# Testing executable
+add_executable(OWA_DSA_tests
+        DSAProject2/Backend/testing/test.cpp
+        DSAProject2/Backend/MinMax.h
+        DSAProject2/Backend/Deap.h
+        DSAProject2/Backend/HeapWrapper.h
+)
+
+target_link_libraries(OWA_DSA_tests PRIVATE
+        nlohmann_json::nlohmann_json
+        Crow::Crow
+        asio_headers
+)
+
+#make compatible w/ Windows:
+if(WIN32)
+    target_link_libraries(OWA_DSA PRIVATE ws2_32 wsock32)
+    target_link_libraries(OWA_DSA_tests PRIVATE ws2_32 wsock32)
+endif()

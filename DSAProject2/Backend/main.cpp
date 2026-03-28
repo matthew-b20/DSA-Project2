@@ -27,7 +27,13 @@ crow::json::wvalue formatParcel(const Parcel& parcel, const string& desired_wate
 
 int main() {
     //parse file before routes start
-    ifstream file("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterWide.geojson");
+    ifstream file("../DSAProject2/OviedoWaterWide.geojson");
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open water data file." << std::endl;
+        return 1;
+    }
+
     json parsed_geojson = nlohmann::json::parse(file);
 
     crow::SimpleApp app;
