@@ -4,7 +4,7 @@ This GitHub repository contains the raw data (obtained via public record request
 
 ![Photo showing the UI of the Oviedo Water Atlas](DSAProject2/ReadMePhotos/CoverPhoto.png)
 
-## Project structure
+## Project structure of DSAProject2
 * **Backend** -- contains all backend code, including the Deap and MinMax Heap code as well as the Crow server and HeapWrapper class; HeapWrapper, MinMax, and Deap are all template classes, so there are only .h files for them
 * **Frontend/react** -- contains all frontend code
   * ./assets holds certain images and icons that were used in the project
@@ -12,10 +12,11 @@ This GitHub repository contains the raw data (obtained via public record request
   * ./src holds all the React code
       * ./components holds various React components used in the UI
 * **DataCleaning** -- contains all code for transforming various raw data files into usable forms
-    * ./RawData -- olds the raw data files obtained via public records requests
-    * ./CleanedData -- contains transformed data after cleaning and processing
+    * ./RawData -- holds the raw data files obtained via public records requests
+    * ./CleanedData -- contains transformed data after our best attempt at cleaning and processing
     * DataCleaning.R -- the script used for data processing (i.e. removing duplicates and invalid values, merging different datasets, etc.)
- 
+* **ReadMePhotos** -- just where the photos for this README.md are stored
+
 ## Data set
 For all intents and purposes, the **273,912-row OviedoWaterLong.csv** ("long" refers to long-formatted, as opposed to wide-formatted, data) can be considered our data set for this project. It is found under DataCleaning/CleanedData/OviedoWaterLong.csv. It contains approximately 9 months worth of water-meter-level water consumption data for the City of Oviedo, FL, broken down by factors such as Potable (drinking-quality) and Reclaimed water. OviedoWaterLong.csv is essentially an extracted layer from WaterConsumption.gdb, which is the geodatabase file originally provided by the city. Reading a .gdb file typically requires specialized GIS software (such as ArcGIS Pro), however, so it has been transformed into a format that can be opened in Excel or another spreadsheet software to be inspected for grading purposes.
 
@@ -27,23 +28,25 @@ For all intents and purposes, the **273,912-row OviedoWaterLong.csv** ("long" re
 - [CMake](https://cmake.org/download/) >= 3.20
 - [Node.js](https://nodejs.org/) >= 20.19
 - [R](https://cran.r-project.org/) >= 4.x
+- [Python3](https://www.python.org/downloads/) >= 3.0 (although we didn't write any Python code directly, it is a dependency for a package we used)
 - CLion with the [R Language plugin](https://plugins.jetbrains.com/plugin/6632-r-language-for-intellij) installed
 
 ### Backend (C++ / Crow)
-1. Open the project root in CLion -- it should auto-detect `CMakeLists.txt`
-2. Select the `Backend` run configuration and click "Run >"
+1. Open the project root in CLion -- it should auto-detect our `CMakeLists.txt`
+2. If for whatever reason it doesn't automatically detect `CMakeLists.txt`, then try right-clicking the file and choose "Reload CMake Project". Or go to "Tools" in the CLion toolbar and choose "Reset Cache & Reload Project".
+3. Select the `OWA_DSA` executable and run it. This will not work if you don't have Python3 installed.
 
-The Crow server will start on `http://localhost:18080`. If you open that url in your browser, it should read "You have successfully reached the Crow server :D"
+The Crow server will state that it has started on `http://0.0.0.0:18080`. If you click and open that url in your browser on Mac, it will probably work fine. If you try to click and open that url on Windows, it will probably NOT work -- you need to explicitly go to `http://localhost:18080`. The browser window should read "You have successfully reached the Crow server :D" if you have successfully launched the server.
 
 ### Frontend (React + Vite)
-Next open the console and navigate to the `react` folder within the `Frontend`.
+Next open the console and navigate to the `react` folder within the `Frontend`. `npm install` will not work if Node.js is not installed on your computer. If it is not installed, go to the link above in the "Prerequisites" section to download it.
 
 ```bash
 cd DSAProject2/Frontend/react
 npm install
 npm run dev
 ```
-The frontend should start up on `http://localhost:5173` in your browser. Make sure the backend server is running first or else the filtering functionalities won't work.
+The frontend should start up on `http://localhost:5173` in your browser. Make sure the backend server is running first, before trying to interact with the website, or else the filtering functionalities won't work, as those rely on calls to the backend server.
 
 ### Data Cleaning (R)
 After installing R from CRAN and the R Language plugin for CLion, you can open any script in `DataCleaning/` in CLion and click **Run**, or source it from the R console. Before running the R code for the first time, you will need to install the following packages in the console.
