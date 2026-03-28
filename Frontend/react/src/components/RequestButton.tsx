@@ -14,7 +14,7 @@ interface RequestButtonProps{
 
 //THIS BUTTON MAKES A REQUEST TO THE CROW SERVER BASED ON THE BASSED IN PROPS
 //THIS WILL NEED TO BE UPDATED LATER OFC
-export default function RequestButton({billing_period, num, variable, method}: RequestButtonProps) {
+export default function RequestButton({billing_period, num, variable, method, category, exclude}: RequestButtonProps) {
     const Animation = (UseAnimations as any).default || UseAnimations;
     const loadingAnimationData = (loading as any).default || loading;
 
@@ -22,8 +22,8 @@ export default function RequestButton({billing_period, num, variable, method}: R
     const [isLoading, setLoading] = useState(false);
 
     const makeRequest = async () => {
-        const min_max_endpoint = `/api/minmax/${billing_period}/${num}/${variable}/${method}`; //Crow server url
-        const deap_endpoint = `/api/deap/${billing_period}/${num}/${variable}/${method}`;
+        const min_max_endpoint = `/api/minmax/${billing_period}/${num}/${variable}/${method}/${category}/${exclude}`; //Crow server url
+        const deap_endpoint = `/api/deap/${billing_period}/${num}/${variable}/${method}/${category}/${exclude}`;
         
         try{
             setLoading(true);

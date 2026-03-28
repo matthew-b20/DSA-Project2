@@ -3,7 +3,7 @@ import MapMarker from './MapMarker.tsx';
 import { MapContext, type MapContextType } from './MapVariablesProvider.tsx';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useContext, useEffect, memo } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import * as pmtiles from 'pmtiles';
 
 
@@ -67,6 +67,30 @@ const ParcelLayers = ({billingPeriod, variable}:{billingPeriod: number, variable
             />
         </Source>
     );
+}
+
+//debouncing function to prevent too many map renders from the billing period slider:
+function useDebounce(value: number, zoom: number) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    //making the delay adaptive based on the zoom level
+    //b/c zoom level impacts how many parcels need to be rendered
+    //& therefore how laggy parcel re-renders are:
+    const delay = 7000/(zoom^2); //somewhat randomly chosen, but seems to work
+
+    useEffect(() => {
+        // set timer to update the debounced value after the delay
+        const handler = setTimeout(() => {
+            setDebouncedValue(value); //function argument (callback)
+        }, delay); //delay argument
+
+        // clean up function runs before the useEffect() function runs again
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value]); // do the Effect again if the value changes
+
+    return debouncedValue;
 }
 
 export default function MapBackground() {
@@ -185,7 +209,7 @@ export default function MapBackground() {
                         </>
                     }
 
-                    <ParcelLayers billingPeriod={billingPeriod} variable={variable}/>
+                    <ParcelLayers billingPeriod={useDebounce(billingPeriod, map.getZoom())} variable={variable}/>
 
                     <Source
                         id="meter-points"
