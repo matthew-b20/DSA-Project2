@@ -26,8 +26,8 @@ export default function ReturnedUsers(){
             {/* TIME ELAPSED BADGES */}
             {returnJSON &&
                 <>
-                    <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[0].Time/1000} sec</span></p>
-                    <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{returnJSON[1].Time/1000} sec</span></p>
+                    <p><b>Min-Max Heap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{(returnJSON[0].Time/(10**9)).toFixed(6)} sec</span></p>
+                    <p><b>Deap: </b><span className="uk-badge uk-badge-primary pointer-events-none">{(returnJSON[1].Time/(10**9)).toFixed(6)} sec</span></p>
                     <hr className="uk-hr my-8"/>
                 </>
             }
