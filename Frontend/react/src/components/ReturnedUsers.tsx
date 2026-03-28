@@ -56,7 +56,7 @@ export default function ReturnedUsers(){
             {returnJSON && returnJSON[0].MinUsers && (method === "Min" || method === "Both") &&
                 <>
                     <h2><b>Lowest {returnJSON[0].Number} Users</b></h2>
-                    <span className="text-s font-medium text-muted-foreground uppercase">
+                    <span className="text-s font-medium text-primary uppercase">
                         Bill {returnJSON[0].BillingPeriod}: {returnJSON[0].VariableOfInterest} Usage
                     </span>
                     {returnJSON[0].MinUsers.map((user, index )=> (
@@ -80,7 +80,7 @@ export default function ReturnedUsers(){
                     ))}
                     {
                         returnJSON[0].MinUsers.length === 0 ? (
-                            <p>
+                            <p className="text-muted-foreground">
                                 Your query returned no matches. If you would like to try a different query,
                                 please adjust your filters in the 'Filters' tab.
                             </p>
@@ -94,7 +94,7 @@ export default function ReturnedUsers(){
                 <>
                     {returnJSON[0].MinUsers && <br/> /*conditional spacing*/}
                     <h2><b>Highest {returnJSON[0].Number} Users</b></h2>
-                    <span className="text-s font-medium text-muted-foreground uppercase">
+                    <span className="text-s font-medium text-primary uppercase">
                         Bill {returnJSON[0].BillingPeriod}: {returnJSON[0].VariableOfInterest} Usage
                     </span>
                     {returnJSON[0].MaxUsers.map((user, index )=> (
@@ -118,7 +118,7 @@ export default function ReturnedUsers(){
                     ))}
                     {
                         returnJSON[0].MaxUsers.length === 0 ? (
-                            <p>
+                            <p className="text-muted-foreground">
                                 Your query returned no matches. If you would like to try a different query,
                                 please adjust your filters in the 'Filters' tab.
                             </p>
