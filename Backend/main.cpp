@@ -37,8 +37,8 @@ int main() {
     });
 
     // UNIFIED ROUTE: Handles both MinMax and DEAP!
-    CROW_ROUTE(app, "/<string>/<int>/<int>/<string>/<string>/<string>/<int>")
-    ([&parsed_geojson](string data_structure, int billing_period, int num, string variable, string method, string cat, int exclude){
+    CROW_ROUTE(app, "/<string>/<int>/<int>/<string>/<string>/<string>/<int>/<string>")
+    ([&parsed_geojson](string data_structure, int billing_period, int num, string variable, string method, string cat, int exclude, string subdiv){
 
         //Validate method
         if (method != "Min" && method != "Max" && method != "Both") {
@@ -62,7 +62,7 @@ int main() {
         if (data_structure == "minmax") {
             //make MinMaxHeap
             //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
-            HeapWrapper<MinMax<Parcel>> heap(parsed_geojson,billing_period, variable, cat, exclude);
+            HeapWrapper<MinMax<Parcel>> heap(parsed_geojson,billing_period, variable, cat, exclude, subdiv);
 
             if (method == "Min" || method == "Both") {
                 crow::json::wvalue::list min_users;
@@ -89,7 +89,7 @@ int main() {
             //implement Deap logic here using the same approach
             //make Deap
             //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
-            HeapWrapper<Deap<Parcel>> heap(parsed_geojson,billing_period, variable, cat, exclude);
+            HeapWrapper<Deap<Parcel>> heap(parsed_geojson,billing_period, variable, cat, exclude, subdiv);
 
             if (method == "Min" || method == "Both") {
                 crow::json::wvalue::list min_users;

@@ -223,3 +223,17 @@ parcel_sf <- parcels %>%
 
 st_write(parcel_sf, "CleanedData/OviedoParcels.geojson",
          driver = "GeoJSON", delete_dsn = TRUE)
+
+# OUTPUT 4 -- Subdivision Code JSON
+# Read the Excel file
+subdivisions_raw <- read_excel("RawData/Subdivisions.xlsx")
+
+# Merge Code1 and Code2 into FullCode, then remove original columns
+# Paste0 combines codes w/o spaces
+subdivisions_processed <- subdivisions_raw %>%
+  mutate(FullCode = paste0(`Code 1`, `Code 2`)) %>%
+  select(Description, FullCode)
+
+# Write the file
+library(jsonlite)
+write_json(subdivisions_processed, "CleanedData/SubdivisionCodes.json", pretty = TRUE)

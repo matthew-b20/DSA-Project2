@@ -54,7 +54,7 @@ public:
 
     //Constructor
     HeapWrapper(const json& parsed_geojson, int& billing_period, const string& variable,
-        const string& cat, const int& exclude) {
+        const string& cat, const int& exclude, string const& subdiv) {
 
         desired_water_bill = variable + to_string(billing_period);
         cout << desired_water_bill << endl;
@@ -72,6 +72,15 @@ public:
             // Filter by category
             if (cat != "All" && props["PropertyCat"] != cat) {
                 continue;
+            }
+
+            // Filter by subdivision code
+            if (subdiv != "All") {
+                if (!props.contains("SubdivisionCode") ||
+                    props["SubdivisionCode"].is_null() ||
+                    props["SubdivisionCode"] != subdiv) {
+                    continue;
+                    }
             }
 
             // Exclude zeroes
