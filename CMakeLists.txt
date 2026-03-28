@@ -39,8 +39,8 @@ target_include_directories(asio_headers INTERFACE
         ${asio_SOURCE_DIR}/asio/include
 )
 target_compile_definitions(asio_headers INTERFACE
-        ASIO_STANDALONE # don't use Boost headers
-        ASIO_NO_DEPRECATED
+        ASIO_STANDALONE
+        ASIO_ENABLE_OLD_SERVICES
 )
 
 # Executable
@@ -48,7 +48,7 @@ add_executable(OWA_DSA
         DSAProject2/Backend/main.cpp
         DSAProject2/Backend/MinMax.h
         DSAProject2/Backend/Deap.h
-        DSAProject2/Backend/GeoJSONHeapWrapper.h
+        DSAProject2/Backend/HeapWrapper.h
         DSAProject2/Backend/testing/test.cpp
 )
 
