@@ -2,7 +2,7 @@
 #include <string>
 #include <chrono> // for timing of the methods
 #include "./Crow/include/crow.h"
-#include "GeoJSONHeapWrapper.h"
+#include "HeapWrapper.h"
 #include "MinMax.h"
 #include "Deap.h"
 using namespace std;
@@ -25,6 +25,10 @@ crow::json::wvalue formatParcel(const json& parcel, const string& desired_water_
 }
 
 int main() {
+    //parse file before routes start
+    ifstream file("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterWide.geojson");
+    json parsed_geojson = nlohmann::json::parse(file);
+
     crow::SimpleApp app;
 
     CROW_ROUTE(app, "/")([](){
@@ -33,7 +37,7 @@ int main() {
 
     // UNIFIED ROUTE: Handles both MinMax and DEAP!
     CROW_ROUTE(app, "/<string>/<int>/<int>/<string>/<string>/<string>/<int>")
-    ([](string data_structure, int billing_period, int num, string variable, string method, string cat, bool exclude){
+    ([&parsed_geojson](string data_structure, int billing_period, int num, string variable, string method, string cat, bool exclude){
 
         //Validate method
         if (method != "Min" && method != "Max" && method != "Both") {
@@ -57,7 +61,7 @@ int main() {
         if (data_structure == "minmax") {
             //make MinMaxHeap
             //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
-            GeoJSONHeapWrapper<MinMax<json>> heap("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterWide.geojson", billing_period, variable);
+            HeapWrapper<MinMax<json>> heap(parsed_geojson,billing_period, variable, cat, exclude);
 
             if (method == "Min" || method == "Both") {
                 crow::json::wvalue::list min_users;
@@ -84,7 +88,7 @@ int main() {
             //implement Deap logic here using the same approach
             //make Deap
             //hardcoding file path for now b/c it doesn't seem to want to work otherwise...
-            GeoJSONHeapWrapper<Deap<json>> heap("/Users/charlotte/CLionProjects/OWA_DSA/DSAProject2/OviedoWaterWide.geojson", billing_period, variable);
+            HeapWrapper<Deap<json>> heap(parsed_geojson,billing_period, variable, cat, exclude);
 
             if (method == "Min" || method == "Both") {
                 crow::json::wvalue::list min_users;

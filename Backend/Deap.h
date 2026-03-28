@@ -9,7 +9,7 @@ using namespace std;
 // Index 0 is not used (dummy) — required for the index math to work correctly
 // Index 1 is the MIN-HEAP root > smallest value here
 // Index 2 is the MAX-HEAP root > largest value here  
-//
+
 // Deap Fundamentals ^^^^^^ 
 
 template <typename Node>

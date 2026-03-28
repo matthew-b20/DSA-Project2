@@ -34,7 +34,9 @@ namespace std {
 
             if (properties.contains("LocationCode") && !properties["LocationCode"].is_null()) {
                 //hashing only the unique identifier
-                string id = properties["LocationCode"].dump(); //.dump() serializes the JSON into a string
+                string id = properties["LocationCode"].is_string() ?
+                    properties["LocationCode"].get<string>() :
+                    to_string(properties["LocationCode"].get<float>());
 
                 //hash<string> is the type, {} creates a temporary object, then (id) is called on it
                 //the operator() is an instance method so you must create a temp instance w/ {} to use it
@@ -52,7 +54,7 @@ namespace std {
 //CHAT & MATTHEW -- IF YOU NAMED THE DEAP METHODS SOMETHING ELSE YOU NEED TO RENAME THEM TO MATCH THE MINMAX HEAP
 //^if the minmax heap and deap method names don't match, then this won't work
 template <typename HeapType>
-class GeoJSONHeapWrapper {
+class HeapWrapper {
 private:
     HeapType heap;
 
@@ -63,77 +65,52 @@ private:
 
         const json& properties = feature["properties"];
 
-
-        if (!properties.contains(desired_water_bill) || properties[desired_water_bill].is_null()) {
-            cout << "null" <<  properties["Address"] << endl;
-            //throw runtime_error("GeoJSONHeap: feature is missing '{water}{bill}' property");
-            return(12345.0);
-        }
-
-        //this is causing errors rn b/c there are some nulls...
-        //return(2.0);
-        return properties[desired_water_bill].template get<float>(); //won't work w/o explicity "template" for whatever reason
-        //^ .get<type>() is nloman::json's way of extracting something from a json into a specific C++ type
+        return properties[desired_water_bill].template get<float>(); //won't work w/o explicitly "template" for whatever reason
+        //^ .get<type>() is nlohmann::json's way of extracting something from a json into a specific C++ type
     }
 
 public:
     string desired_water_bill;
 
     //Constructor
-    GeoJSONHeapWrapper(const string& filepath, int& billing_period, const string& variable) {
+    HeapWrapper(const json& parsed_geojson, int& billing_period, const string& variable,
+        const string& cat, const bool& exclude) {
+
         desired_water_bill = variable + to_string(billing_period);
         cout << desired_water_bill << endl;
-        load_file(filepath, billing_period, variable);
-    }
 
-    //Custom GeoJSON file loader
-    //Reads a GeoJSON file and inserts all of its features into the heap
-    void load_file(const string& filepath, const int& billing_period, const string& variable) {
-        ifstream file(filepath);
-        if (!file.is_open()) {
-            throw runtime_error("GeoJSONHeap: could not open file: " + filepath);
-        }
+        for (const json& feature : parsed_geojson.at("features")) {
+            const auto& props = feature.at("properties");
 
-        json geojson = nlohmann::json::parse(file);
-
-        //only query for the selected billing period and water type (Potable, Reclaimed, Both, etc.)
-        /*
-        for (const json& feature : geojson.at("features")) {
-            if (feature.at("properties")["Bill"] == billing_period &&
-                feature.at("properties")["WaterType"] == variable) {
-                add_feature(feature);
-            }
-        }
-        */ //no more filtering needed now that everything is wide format!!!
-
-        for (const json& feature : geojson.at("features")) {
-            //minimize the JSON to the relevant fields
-            /*
-            address
-            location code
-            geometry
-            {potable/reclaimed/combined}{billing_period}
-             */
-            //ideally we would minimize the feature first...
-            bool no_null = true;
-            for (const json& property : feature.at("properties")) {
-                if (property.is_null()) {
-                    no_null = false;
+            // Check if the property exists and is valid
+            if (!props.contains(desired_water_bill) ||
+                props[desired_water_bill].is_null() ||
+                props[desired_water_bill] == -1) {
+                continue;
                 }
+
+            // Filter by category
+            if (cat != "All" && props["PropertyCat"] != cat) {
+                continue;
             }
-            if (no_null) {
-                add_feature(feature); //add feature w/o filtering b/c not needed anymore
+
+            // Exclude zeroes
+            if (exclude && props[desired_water_bill] == 0) {
+                continue;
             }
+
+            // Add feature 1X
+            add_feature(feature);
         }
     }
 
     void add_feature(const json& feature) {
         float consump = get_consump(feature);
-        heap.add_node(feature, consump); //calls .add_node() (MinMaxHeap method)
+        heap.add_node(feature, consump); //calls .add_node() (MinMaxHeap/Deap method)
     }
 
     void remove_feature(const json& feature) {
-        heap.remove_node(feature); //calls .remove_node() (MinMaxHeap method)
+        heap.remove_node(feature); //calls .remove_node() (MinMaxHea/Deap method)
     }
 
     json pop_min() {
