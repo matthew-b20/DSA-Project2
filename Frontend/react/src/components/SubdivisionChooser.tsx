@@ -23,7 +23,7 @@ export default function SubdivisionChooser() {
                     onChange={(e)=>{setSubdiv(e.target.value)}}
                 >
                     <option value="All">
-                        All Categories
+                        All of Oviedo
                     </option>
                     {
                         subdivisionJSON.map(({FullCode, Description } : { FullCode: string, Description: string }) => (

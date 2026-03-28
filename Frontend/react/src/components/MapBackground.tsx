@@ -62,7 +62,6 @@ const ParcelLayers = ({billingPeriod, variable}:{billingPeriod: number, variable
                         150, '#7a0403',
                     ],
                     'fill-opacity': 0.6,
-
                 }}
             />
         </Source>
@@ -97,6 +96,7 @@ export default function MapBackground() {
     const [zoom, setZoom] = useState(12);
     const { map } = useMap();
     const { style, billingPeriod, variable, popup, setPopup, returnJSON, method, meterLayer } = useContext(MapContext) as MapContextType;
+    const consump_period = variable + billingPeriod;
 
     useEffect(()=>{
         const protocol = new pmtiles.Protocol();
@@ -104,7 +104,7 @@ export default function MapBackground() {
         return () => {maplibregl.removeProtocol("pmtiles")} //optional (not really optional here) cleanup function so React doesn't get weird
     }, []); //empty dependency array
 
-    const handleParcelClick = (e) => {
+    const handleParcelOrPointClick = (e) => {
         const parcel = e.features && e.features[0]; // In react-map-gl, e.features property is an array of data features located at the mouse pointer's position when the event happens
         if(parcel){
             //Set Popup state
@@ -136,7 +136,7 @@ export default function MapBackground() {
                 id="map"
                 attributionControl={false}
                 interactiveLayerIds={['parcel-fills']}
-                onClick={handleParcelClick}
+                onClick={handleParcelOrPointClick}
                 initialViewState={{
                     longitude: -81.2,
                     latitude: 28.67,
@@ -223,16 +223,30 @@ export default function MapBackground() {
                             source-layer="OviedoWaterWide"
                             layout={{ visibility: meterLayer ? 'visible' : 'none' }}
                             paint={{
+                                'circle-color': [
+                                    'interpolate',
+                                    ['linear'],
+                                    ['get', consump_period],
+                                    0, '#30123b',
+                                    2, '#4145ab',
+                                    5, '#39a2fc',
+                                    10, '#1bcfd4',
+                                    20, '#24efa2',
+                                    35, '#a2fc3c',
+                                    50, '#e1dc27',
+                                    75, '#f8910b',
+                                    100, '#e22f05',
+                                    150, '#7a0403',
+                                ],
                                 'circle-radius': [
                                     'interpolate', ['linear'], ['zoom'],
                                     10, 0.5, // at zoom 10 do radius 2
                                     14, 2,
                                     18, 6
                                 ],
-                                'circle-color': '#FFFFFF',
-                                'circle-stroke-width': 1,
+                                'circle-stroke-width': 0.5,
                                 'circle-stroke-color': '#000000',
-                                'circle-opacity': 0.6,
+                                'circle-opacity': 0.7,
                             }}
                         />
                     </Source>
