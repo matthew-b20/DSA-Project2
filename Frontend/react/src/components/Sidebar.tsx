@@ -6,6 +6,8 @@ import NumberChooser from  './NumberChooser.tsx';
 import WaterChooser from  './WaterChooser.tsx';
 import MinMaxChooser from  './MinMaxChooser.tsx';
 import LayersHandler from './LayersHandler.tsx';
+import ZeroExcluder from './ZeroExcluder.tsx';
+import ReturnedUsers from './ReturnedUsers.tsx';
 import Slider from './Slider.tsx';
 import UseAnimations from "react-useanimations";
 import menu2 from 'react-useanimations/lib/menu2';
@@ -21,54 +23,71 @@ export default function Sidebar() {
 
     return(
         <>
-            { /* the menu icon isn't animating -- IDK why */ }
-           <button className = "absolute uk-btn uk-btn-primary top-4 left-0 px-2 py-6 rounded-l-none z-1"
-                   style={{ '--uk-btn-primary-hover-bg': 'hsl(var(--primary))' } as React.CSSProperties} //stops button from turning translucent on hover
-                   type="button"
-                   data-uk-toggle="target: #sidebar-container"
-                   onClick = {()=>{setIsOpen(!isOpen)}}
-           >
-               <Animation animation={menuAnimationData}
-                          reverse={isOpen}
-                          size={32}
-                          speed={1.5}
-               />
-           </button>
-            <div id = "sidebar-container" className="uk-offcanvas !visible" data-uk-offcanvas="bg-close: false; mode: push">
+            { /* the menu icon isn't animating -- IDK why */}
+            <button className="absolute uk-btn uk-btn-primary top-4 left-0 px-2 py-6 rounded-l-none z-1"
+                    style={{'--uk-btn-primary-hover-bg': 'hsl(var(--primary))'} as React.CSSProperties} //stops button from turning translucent on hover
+                    type="button"
+                    data-uk-toggle="target: #sidebar-container"
+                    onClick={() => {
+                        setIsOpen(!isOpen)
+                    }}
+            >
+                <Animation animation={menuAnimationData}
+                           reverse={isOpen}
+                           size={32}
+                           speed={1.5}
+                />
+            </button>
 
+            <div id="sidebar-container" className="uk-offcanvas !visible"
+                 data-uk-offcanvas="bg-close: false; mode: push">
 
-
-                <div className = "uk-offcanvas-bar px-6 py-6 z-1 overscroll-none">
+                <div className="uk-offcanvas-bar px-6 py-6 z-1 overscroll-none">
                     {/*HEADER*/}
-                    <h1 className = "uk-h1 text-secondary mb-4"><b>The Oviedo Water Atlas</b></h1>
+                    <h1 className="uk-h1 text-secondary mb-4"><b>The Oviedo Water Atlas</b></h1>
 
-                    {/*INPUT COMPONENTS*/}
-                    <h4 className = "uk-h4 text-primary mb-4">Filters</h4>
-
-                    <LayersHandler/>
+                    {/* TABS!! */}
+                    <ul className="uk-tab" uk-tab="connect: #sidebar-tabs">
+                        <li className="uk-active"><a href="#">Filters</a></li>
+                        <li><a href="#">Results</a></li>
+                    </ul>
                     <br/>
 
-                    <NumberChooser/>
-                    <br/>
+                    {/* TAB CONTENT */}
+                    <ul id="sidebar-tabs" className="uk-switcher uk-margin">
+                        <li>
+                            <LayersHandler/>
+                            <br/>
 
-                    <Slider/>
-                    <br/>
+                            <NumberChooser/>
+                            <br/>
 
-                    <div className="px-0 py-0 grid grid-cols-2 gap-2">
-                        <WaterChooser/>
-                        <MinMaxChooser/>
-                    </div>
-                    <br/>
+                            <Slider/>
+                            <br/>
 
-                    <RequestButton
-                        billing_period={billingPeriod}
-                        num={num}
-                        variable={variable}
-                        method={method}
-                    />
-                    <br/>
+                            <div className="px-0 py-0 grid grid-cols-2 gap-2">
+                                <WaterChooser/>
+                                <MinMaxChooser/>
+                            </div>
+                            <br/>
 
+                            <ZeroExcluder/>
+                            <br/>
+                            <br/>
 
+                            <RequestButton
+                                billing_period={billingPeriod}
+                                num={num}
+                                variable={variable}
+                                method={method}
+                            />
+                            <br/>
+                        </li>
+
+                        <li>
+                            <ReturnedUsers/>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </>

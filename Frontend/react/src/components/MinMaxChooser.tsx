@@ -7,9 +7,11 @@ export default function MinMaxChooser(){
     return(
         <label className="block" htmlFor="Search Chooser">
             <div className="flex items-center gap-2">
+                {/*
                 <a href="#bill-info-modal" data-uk-toggle="target: #bill-info-modal">
                     <img src="../assets/info.png" alt="Number of properties info" width="16" height="16"/>
                 </a>
+                */}
                 <b>User type: </b>
             </div>
 

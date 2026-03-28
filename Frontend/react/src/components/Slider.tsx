@@ -7,10 +7,12 @@ export default function Slider() {
     return(
         <label className="block" htmlFor="Billing period slider">
             <div className="flex items-center gap-1">
+                {/*
                 <a href="#bill-info-modal" data-uk-toggle="target: #bill-info-modal">
                     <img src="../assets/info.png" alt="Number of properties info" width="16" height="16"/>
                 </a>
-                <b>Billing period: </b>
+                */}
+                <b>2025 Billing period: </b>
                 <span className="uk-badge">{billingPeriod}</span>
             </div>
 

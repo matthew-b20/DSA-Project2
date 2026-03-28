@@ -55,6 +55,9 @@ export interface MapContextType {
 
     meterLayer: boolean;
     setMeterLayer: (val: boolean) => void;
+
+    excludeZeroes: boolean;
+    setExcludeZeroes: (val: boolean) => void;
 }
 
 export const MapContext = createContext<MapContextType | null>(null);
@@ -69,7 +72,7 @@ export default function MapVariablesProvider({children} : {children: React.React
     const [returnJSON, setReturnJSON] = useState<ReturnJSON[] | null>(null);
     const [parcelLayer, setParcelLayer] = useState<boolean>(true);
     const [meterLayer, setMeterLayer] = useState<boolean>(true);
-
+    const [excludeZeroes, setExcludeZeroes] = useState<boolean>(true);
 
     return(
         <MapContext.Provider value = {{
@@ -82,6 +85,7 @@ export default function MapVariablesProvider({children} : {children: React.React
             returnJSON, setReturnJSON,
             parcelLayer, setParcelLayer,
             meterLayer, setMeterLayer,
+            excludeZeroes, setExcludeZeroes
         }}
         >
             {children}

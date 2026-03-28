@@ -7,9 +7,11 @@ export default function WaterChooser(){
     return(
         <label className="block" htmlFor="Water Chooser">
             <div className="flex items-center gap-2">
+                {/*
                 <a href="#bill-info-modal" data-uk-toggle="target: #bill-info-modal">
                     <img src="../assets/info.png" alt="Number of properties info" width="16" height="16"/>
                 </a>
+                */}
                 <b>Water type: </b>
             </div>
 

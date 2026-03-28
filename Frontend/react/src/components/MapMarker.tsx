@@ -7,7 +7,7 @@ interface MarkerProps {
 export default function MapMarker({color, rank, size}:MarkerProps){
     return(
         <>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width={size} height={size}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width={size} height={size} overflow="visible">
                 <path
                     fill={color === "low" ? "#4145ab" : "#7a0403"}
                     stroke="black"
