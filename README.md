@@ -1,37 +1,20 @@
-# DSA-Project2
+# THE OVIEDO WATER ATLAS
 
-Implement, compare and critically analyze the performance 
-of at least two comparable data structures or two comparable 
-algorithms for achieving the same task. 
+This GitHub repository contains the raw data (obtained via public record requests), cleaned data, data cleaning scripts, frontend code, and backend code for the Oviedo Water Atlas, an interactive data visualization platform allowing City of Oviedo residents to visualize and compare their water usage. The aim is to empower residents with transparent, accessible insights into their own water consumption, turning raw public utility records into an accessible platform for conservation awareness, community accountability, and data-driven advocacy around one of Florida's most critical resources: water.
 
-Your project should solve a well framed problem using any or 
-a combination of programming languages
+## Project structure
+* **Backend** -- contains all backend code, including the Deap and MinMax Heap code as well as the Crow server and HeapWrapper class; HeapWrapper, MinMax, and Deap are all template classes, so there are only .h files for them
+* **Frontend/react** -- contains all frontend code
+  * ./assets holds certain images and icons that were used in the project
+  * ./public holds the larger files that are used client-side, such as the .pmtiles (proto-map tiles) used for mapping
+  * ./src holds all the React code
+      * ./components holds various React components used in the UI
+* **DataCleaning** -- contains all code for transforming various raw data files into usable forms
+    * ./RawData -- olds the raw data files obtained via public records requests
+    * ./CleanedData -- contains transformed data after cleaning and processing
+    * DataCleaning.R -- the script used for data processing (i.e. removing duplicates and invalid values, merging different datasets, etc.)
+ 
+## Data set
+For all intents and purposes, the **273,912-row OviedoWaterLong.csv** ("long" refers to long-formatted, as opposed to wide-formatted, data) can be considered our data set for this project. It is found under DataCleaning/CleanedData/OviedoWaterLong.csv. It contains approximately 9 months worth of water-meter-level water consumption data for the City of Oviedo, FL, broken down by factors such as Potable (drinking-quality) and Reclaimed water. OviedoWaterLong.csv is essentially an extracted layer from WaterConsumption.gdb, which is the geodatabase file originally provided by the city. Reading a .gdb file typically requires specialized GIS software (such as ArcGIS Pro), however, so it has been transformed into a format that can be opened in Excel or another spreadsheet software to be inspected for grading purposes.
 
-There are two requirements for this project:
-
-    -   You must implement at least two non-trivial comparable
-        algorithms or data structures in your project to achieve
-        the relevant task. Implement here means you need to 
-        design those two algorithms or data structures you are comparing 
-        from scratch and cannot use a library for it.
-    
-    -   You must use a data set that has at least 100,000 tuples or rows 
-        or data points (e.g. 100,000 vertices in a Graph). Our recommendation 
-        is that you use a publicly available data set but if you can't find 
-        one, then randomly generate data. 
-
-Data Structures and Algorithms that are not counted towards the requirement 
-of two data structures and algorithms:
-Any data structure from Module 2: Lists, Stacks, and Queues,
-Binary Search Tree,
-AVL Tree,
-Binary and Linear Search,
-Selection, Bubble, and Insertion Sort.
-
-
-You cannot change the problem context after the proposal. However, if you
-find a different way to solve the problem like a better algorithm or extra
-data structure, you can always change the implementation or visual aesthetics
-after your proposal or in your final submission. The proposal's goal is to 
-make sure you have an idea of what you are trying to do and to get feedback 
-from the course staff.
+## How to run this project:
