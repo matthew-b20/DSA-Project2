@@ -24,6 +24,12 @@ namespace std {
     template <> //define a specific implementation of a template
     struct hash<json> { //defining hash specifically for json
         size_t operator()(const json& feature) const {
+
+            //SHOULD HOPEFULLY STOP SERVER FROM CRASHING DUE TO ISSUES W/ DEAP:
+            if (feature.is_null() || !feature.is_object() || !feature.contains("properties")) {
+                return 0;
+            }
+
             const json& properties = feature.at("properties");
 
             if (properties.contains("LocationCode") && !properties["LocationCode"].is_null()) {
