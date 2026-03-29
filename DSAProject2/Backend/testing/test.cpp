@@ -2,29 +2,9 @@
 #include "../Deap.h"
 using namespace std;
 
-
-/*
-TEST_CASE("Test 1: Name", "[tags][here]") {
-    SECTION("Name of section") {
-
-    }
-}
-*/
-
-//MIN-MAX HEAP TESTS
-
-
-//DEAP TESTS
-
-// Failed Tests:
-// - Get Min/Max only works in standalone by themselves
-// - Delete Min Works but Not Delete Max
-// - Sometimes, some tests pass but then fail without changing anything (two element deap, size tracking)
-
-
-// 1: Insert
-// 2: Delete
-// 3: Other functions like, size, getmax, get min, etc.
+// THESE ARE **SHARED** TEST CASES FOR DEAP AND MINMAX
+// This is because the Deap and Min-Max have essentially identical functions
+// and perform the same tasks
 
 TEST_CASE("Empty Deap", "[Base Case]") {
     Deap<int> d;
@@ -62,7 +42,7 @@ TEST_CASE("Deap with one element", "[Simple Deap]") {
         REQUIRE(d.is_empty());
     }
 
-    SECTION("same as before but with the pop_max function") {
+    SECTION("Same as before but with the pop_max function") {
         int temp = d.pop_max_node();
         REQUIRE(temp == 7);
         REQUIRE(d.is_empty());
@@ -85,7 +65,7 @@ TEST_CASE ("Deap with two elements", "[Simple Deap V2]") {
         REQUIRE(d.peek_min_node() == 10);
     }
 
-    SECTION("same as before with pop_max function") {
+    SECTION("Same as before with pop_max function") {
         REQUIRE(d.pop_max_node() == 10);
         REQUIRE(d.num_nodes() == 1);
         REQUIRE(d.peek_max_node() == 4);
@@ -120,9 +100,7 @@ TEST_CASE("peek_min/max Functions testing across multiple diff values", "[Min/Ma
 
     SECTION("Delete Min Function Testing") {
         for (int i : ascPrio) {
-            d.print();
             int temp = d.pop_min_node();
-            d.print();
             REQUIRE(temp == i);
         }
         REQUIRE(d.is_empty());
@@ -202,7 +180,7 @@ TEST_CASE("testing insertion order is working properly", "[insertion_order]") {
     }
 }
 
-TEST_CASE("testing with lots of numbers", "[complex deap]") {
+TEST_CASE("Testing with lots of numbers", "[complex deap]") {
     Deap<int> d;
     int N = 200;
 
@@ -233,7 +211,7 @@ TEST_CASE("testing with lots of numbers", "[complex deap]") {
     }
 }
 
-TEST_CASE("testing clear function", "[clear]") {
+TEST_CASE("Testing clear function", "[clear]") {
     Deap<int> d;
     for (int i = 1; i <= 5; i++) {
         d.add_node(i, i);
@@ -263,7 +241,7 @@ TEST_CASE("testing clear function", "[clear]") {
     }
 }
 
-TEST_CASE("validating deap rules after operations to ensure its maintained", "[properties]") {
+TEST_CASE("Validating deap rules after operations to ensure its maintained", "[properties]") {
     Deap<int> d;
     vector<int> vals = {15, 3, 9, 22, 7, 11, 18, 1, 25, 6};
 
@@ -286,7 +264,7 @@ TEST_CASE("validating deap rules after operations to ensure its maintained", "[p
     }
 }
 
-TEST_CASE("negative numbers testing", "[negative]") {
+TEST_CASE("Negative numbers testing", "[negative]") {
     Deap<int> d;
     d.add_node(1, -10);
     d.add_node(2, 0);
